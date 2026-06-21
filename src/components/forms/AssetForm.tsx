@@ -20,26 +20,31 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function AssetForm({ onSuccess }: { onSuccess?: () => void }) {
+export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: Asset }) {
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
-    defaultValues: { dateAdded: todayISO(), category: 'savings' },
+    defaultValues: editing
+      ? { name: editing.name, estimatedValue: editing.estimatedValue, category: editing.category, dateAdded: editing.dateAdded, notes: editing.notes ?? '' }
+      : { dateAdded: todayISO(), category: 'savings' },
   });
 
   const onSubmit = (data: FormValues) => {
-    const entry: Asset = {
-      id: crypto.randomUUID(),
-      type: 'asset',
+    const fields = {
       name: data.name.trim(),
       estimatedValue: data.estimatedValue,
       category: data.category as AssetCategory,
       dateAdded: data.dateAdded,
       notes: data.notes?.trim() || undefined,
-      createdAt: nowISO(),
     };
-    addTransaction(entry);
-    toast.success('Asset added');
+    if (editing) {
+      updateTransaction({ ...editing, ...fields });
+      toast.success('Asset updated');
+    } else {
+      addTransaction({ id: crypto.randomUUID(), type: 'asset', createdAt: nowISO(), ...fields });
+      toast.success('Asset added');
+    }
     onSuccess?.();
   };
 
@@ -78,7 +83,7 @@ export function AssetForm({ onSuccess }: { onSuccess?: () => void }) {
         <Textarea id="asset-notes" placeholder="Details" {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">Add Asset</Button>
+      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Asset'}</Button>
     </form>
   );
 }

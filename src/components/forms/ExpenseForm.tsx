@@ -19,25 +19,30 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function ExpenseForm({ onSuccess }: { onSuccess?: () => void }) {
+export function ExpenseForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: Expense }) {
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
-    defaultValues: { date: todayISO(), category: 'food' },
+    defaultValues: editing
+      ? { amount: editing.amount, date: editing.date, category: editing.category, notes: editing.notes ?? '' }
+      : { date: todayISO(), category: 'food' },
   });
 
   const onSubmit = (data: FormValues) => {
-    const entry: Expense = {
-      id: crypto.randomUUID(),
-      type: 'expense',
+    const fields = {
       amount: data.amount,
       date: data.date,
       category: data.category as ExpenseCategory,
       notes: data.notes?.trim() || undefined,
-      createdAt: nowISO(),
     };
-    addTransaction(entry);
-    toast.success('Expense added');
+    if (editing) {
+      updateTransaction({ ...editing, ...fields });
+      toast.success('Expense updated');
+    } else {
+      addTransaction({ id: crypto.randomUUID(), type: 'expense', createdAt: nowISO(), ...fields });
+      toast.success('Expense added');
+    }
     onSuccess?.();
   };
 
@@ -70,7 +75,7 @@ export function ExpenseForm({ onSuccess }: { onSuccess?: () => void }) {
         <Textarea id="expense-notes" placeholder="e.g. Groceries" {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">Add Expense</Button>
+      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Expense'}</Button>
     </form>
   );
 }

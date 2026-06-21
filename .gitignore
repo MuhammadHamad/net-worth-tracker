@@ -12,7 +12,8 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor / local tooling (machine-specific, e.g. launch.json has absolute paths)
+.claude
 .vscode/*
 !.vscode/extensions.json
 .idea

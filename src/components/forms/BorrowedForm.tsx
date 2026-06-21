@@ -19,27 +19,31 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function BorrowedForm({ onSuccess }: { onSuccess?: () => void }) {
+export function BorrowedForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: BorrowedLoan }) {
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
-    defaultValues: { date: todayISO() },
+    defaultValues: editing
+      ? { personOrEntity: editing.personOrEntity, amount: editing.amount, date: editing.date, dueDate: editing.dueDate ?? '', notes: editing.notes ?? '' }
+      : { date: todayISO() },
   });
 
   const onSubmit = (data: FormValues) => {
-    const entry: BorrowedLoan = {
-      id: crypto.randomUUID(),
-      type: 'borrowed',
+    const fields = {
       personOrEntity: data.personOrEntity.trim(),
       amount: data.amount,
       date: data.date,
       dueDate: data.dueDate || undefined,
       notes: data.notes?.trim() || undefined,
-      isSettled: false,
-      createdAt: nowISO(),
     };
-    addTransaction(entry);
-    toast.success('Borrowed loan added');
+    if (editing) {
+      updateTransaction({ ...editing, ...fields });
+      toast.success('Loan updated');
+    } else {
+      addTransaction({ id: crypto.randomUUID(), type: 'borrowed', isSettled: false, createdAt: nowISO(), ...fields });
+      toast.success('Borrowed loan added');
+    }
     onSuccess?.();
   };
 
@@ -73,7 +77,7 @@ export function BorrowedForm({ onSuccess }: { onSuccess?: () => void }) {
         <Textarea id="borrowed-notes" placeholder="Details" {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">Add Borrowed Loan</Button>
+      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Borrowed Loan'}</Button>
     </form>
   );
 }

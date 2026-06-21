@@ -19,27 +19,31 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function LentForm({ onSuccess }: { onSuccess?: () => void }) {
+export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: LentLoan }) {
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
-    defaultValues: { date: todayISO() },
+    defaultValues: editing
+      ? { personOrEntity: editing.personOrEntity, amount: editing.amount, date: editing.date, expectedReturnDate: editing.expectedReturnDate ?? '', notes: editing.notes ?? '' }
+      : { date: todayISO() },
   });
 
   const onSubmit = (data: FormValues) => {
-    const entry: LentLoan = {
-      id: crypto.randomUUID(),
-      type: 'lent',
+    const fields = {
       personOrEntity: data.personOrEntity.trim(),
       amount: data.amount,
       date: data.date,
       expectedReturnDate: data.expectedReturnDate || undefined,
       notes: data.notes?.trim() || undefined,
-      isSettled: false,
-      createdAt: nowISO(),
     };
-    addTransaction(entry);
-    toast.success('Lent loan added');
+    if (editing) {
+      updateTransaction({ ...editing, ...fields });
+      toast.success('Loan updated');
+    } else {
+      addTransaction({ id: crypto.randomUUID(), type: 'lent', isSettled: false, createdAt: nowISO(), ...fields });
+      toast.success('Lent loan added');
+    }
     onSuccess?.();
   };
 
@@ -73,7 +77,7 @@ export function LentForm({ onSuccess }: { onSuccess?: () => void }) {
         <Textarea id="lent-notes" placeholder="Details" {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">Add Lent Loan</Button>
+      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Lent Loan'}</Button>
     </form>
   );
 }

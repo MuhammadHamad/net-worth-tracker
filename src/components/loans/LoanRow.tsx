@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, CheckCircle2 } from 'lucide-react';
+import { Trash2, CheckCircle2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import type { BorrowedLoan, LentLoan } from '@/types';
 import { useTransactionStore } from '@/store/useTransactionStore';
@@ -8,6 +8,7 @@ import { formatDate, isOverdue } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EditTransactionDialog } from '@/components/forms/EditTransactionDialog';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -24,6 +25,7 @@ export function LoanRow({ loan, settleLabel }: LoanRowProps) {
   const deleteTransaction = useTransactionStore((s) => s.deleteTransaction);
   const { format } = useCurrency();
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const dueDate = loan.type === 'borrowed' ? loan.dueDate : loan.expectedReturnDate;
   const overdue = !loan.isSettled && dueDate ? isOverdue(dueDate) : false;
@@ -57,6 +59,15 @@ export function LoanRow({ loan, settleLabel }: LoanRowProps) {
           <span className="hidden sm:inline">{settleLabel}</span>
         </Button>
       )}
+
+      <button
+        className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
+        aria-label="Edit loan"
+        onClick={() => setEditOpen(true)}
+      >
+        <Pencil className="h-4 w-4" />
+      </button>
+      <EditTransactionDialog transaction={loan} open={editOpen} onOpenChange={setEditOpen} />
 
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
