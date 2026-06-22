@@ -30,6 +30,26 @@ npm run build    # type-check + production build
 npm run lint
 ```
 
+## Optional cloud sync (Supabase)
+
+The app is **local-first** and works with no backend. Cloud sync is opt-in: it adds
+cross-device backup via passwordless magic-link sign-in, and only appears once configured.
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Open **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql) (creates the
+   `sync_items` table + row-level-security so each user only sees their own data).
+3. In **Project Settings → API**, copy the **Project URL** and **anon public** key.
+4. `cp .env.example .env.local` and paste both values:
+   ```
+   VITE_SUPABASE_URL=...
+   VITE_SUPABASE_ANON_KEY=...
+   ```
+5. Restart `npm run dev`. A **Cloud Sync** card appears in Settings.
+
+Sync is **offline-first**: `localStorage` stays the source of truth, changes push in the
+background and pull on reconnect, with last-write-wins conflict resolution. The `anon` key is
+the public client key (safe to ship); never commit the `service_role` key.
+
 ## Features
 
 - **Dashboard** — net worth hero card, 5 summary metrics, money-flow & net-worth-history charts, recent activity.

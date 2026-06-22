@@ -13,11 +13,12 @@ export const useSnapshotStore = create<SnapshotStore>()(
       snapshots: [],
       // Upsert by `date`: replace an existing same-day snapshot, otherwise append.
       saveSnapshot: (snap) => set((state) => {
-        const exists = state.snapshots.some((s) => s.date === snap.date);
+        const stamped = { ...snap, updatedAt: new Date().toISOString() };
+        const exists = state.snapshots.some((s) => s.date === stamped.date);
         return {
           snapshots: exists
-            ? state.snapshots.map((s) => (s.date === snap.date ? snap : s))
-            : [...state.snapshots, snap],
+            ? state.snapshots.map((s) => (s.date === stamped.date ? stamped : s))
+            : [...state.snapshots, stamped],
         };
       }),
     }),

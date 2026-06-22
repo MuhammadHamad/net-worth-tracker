@@ -12,8 +12,8 @@ export const useProfileStore = create<ProfileStore>()(
   persist(
     (set) => ({
       profile: { name: '', currency: 'PKR' },
-      setProfile: (p) => set({ profile: p }),
-      updateProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
+      setProfile: (p) => set({ profile: { ...p, updatedAt: new Date().toISOString() } }),
+      updateProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch, updatedAt: new Date().toISOString() } })),
     }),
     { name: 'nw_profile' }
   )

@@ -5,15 +5,17 @@ export type AssetCategory = 'vehicle' | 'real_estate' | 'precious_metals' | 'inv
 export type Currency = 'PKR' | 'USD' | 'EUR' | 'GBP' | 'AED' | 'SAR';
 export type TimeRange = 'week' | 'month' | 'year' | 'all';
 
-export interface Income { id: string; type: 'income'; amount: number; date: string; category: IncomeCategory; notes?: string; createdAt: string; }
-export interface Expense { id: string; type: 'expense'; amount: number; date: string; category: ExpenseCategory; notes?: string; createdAt: string; }
-export interface Asset { id: string; type: 'asset'; name: string; estimatedValue: number; category: AssetCategory; dateAdded: string; notes?: string; createdAt: string; }
-export interface BorrowedLoan { id: string; type: 'borrowed'; personOrEntity: string; amount: number; date: string; dueDate?: string; notes?: string; isSettled: boolean; createdAt: string; }
-export interface LentLoan { id: string; type: 'lent'; personOrEntity: string; amount: number; date: string; expectedReturnDate?: string; notes?: string; isSettled: boolean; createdAt: string; }
+// `updatedAt` (ISO) is the last-write-wins clock used by cloud sync. It is optional
+// so data created before sync existed still loads; stores stamp it on every write.
+export interface Income { id: string; type: 'income'; amount: number; date: string; category: IncomeCategory; notes?: string; createdAt: string; updatedAt?: string; }
+export interface Expense { id: string; type: 'expense'; amount: number; date: string; category: ExpenseCategory; notes?: string; createdAt: string; updatedAt?: string; }
+export interface Asset { id: string; type: 'asset'; name: string; estimatedValue: number; category: AssetCategory; dateAdded: string; notes?: string; createdAt: string; updatedAt?: string; }
+export interface BorrowedLoan { id: string; type: 'borrowed'; personOrEntity: string; amount: number; date: string; dueDate?: string; notes?: string; isSettled: boolean; createdAt: string; updatedAt?: string; }
+export interface LentLoan { id: string; type: 'lent'; personOrEntity: string; amount: number; date: string; expectedReturnDate?: string; notes?: string; isSettled: boolean; createdAt: string; updatedAt?: string; }
 export type Transaction = Income | Expense | Asset | BorrowedLoan | LentLoan;
 
-export interface UserProfile { name: string; currency: Currency; }
-export interface NetWorthSnapshot { date: string; netWorth: number; totalAssets: number; totalDebt: number; cashBalance: number; }
+export interface UserProfile { name: string; currency: Currency; updatedAt?: string; }
+export interface NetWorthSnapshot { date: string; netWorth: number; totalAssets: number; totalDebt: number; cashBalance: number; updatedAt?: string; }
 export interface NetWorthMetrics { netWorth: number; totalAssets: number; totalDebt: number; cashBalance: number; totalIncome: number; totalExpenses: number; totalLent: number; totalBorrowed: number; }
 
 export const INCOME_CATEGORIES: { value: IncomeCategory; label: string }[] = [

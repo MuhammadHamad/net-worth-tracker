@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { CURRENCIES, type Currency } from '@/types';
@@ -49,6 +50,8 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        <CloudSyncCard />
 
         <Card>
           <CardHeader>
