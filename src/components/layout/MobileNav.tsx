@@ -10,22 +10,24 @@ export function MobileNav() {
   const right = NAV_ITEMS.slice(2, 4);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-center justify-around border-t bg-card md:hidden">
-      {left.map((item) => <MobileNavItem key={item.to} {...item} />)}
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 backdrop-blur pb-safe md:hidden">
+      <div className="flex h-16 items-center justify-around">
+        {left.map((item) => <MobileNavItem key={item.to} {...item} />)}
 
-      <AddTransactionDialog
-        trigger={
-          <button
-            type="button"
-            className="flex h-12 w-12 -translate-y-3 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform"
-            aria-label="Add entry"
-          >
-            <Plus className="h-6 w-6" />
-          </button>
-        }
-      />
+        <AddTransactionDialog
+          trigger={
+            <button
+              type="button"
+              className="flex h-14 w-14 -translate-y-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-90"
+              aria-label="Add entry"
+            >
+              <Plus className="h-6 w-6" />
+            </button>
+          }
+        />
 
-      {right.map((item) => <MobileNavItem key={item.to} {...item} />)}
+        {right.map((item) => <MobileNavItem key={item.to} {...item} />)}
+      </div>
     </nav>
   );
 }
@@ -37,7 +39,7 @@ function MobileNavItem({ to, label, icon: Icon }: (typeof NAV_ITEMS)[number]) {
       end={to === '/'}
       className={({ isActive }) =>
         cn(
-          'flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium',
+          'flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-transform active:scale-90',
           isActive ? 'text-primary' : 'text-muted-foreground'
         )
       }

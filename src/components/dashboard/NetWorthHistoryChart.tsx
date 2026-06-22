@@ -23,13 +23,13 @@ export function NetWorthHistoryChart() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between space-y-0">
+      <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <CardTitle>Net Worth History</CardTitle>
           <p className="text-sm text-muted-foreground">How your wealth is trending</p>
         </div>
         <Tabs value={range} onValueChange={(v) => setRange(v as TimeRange)}>
-          <TabsList className="h-8">
+          <TabsList className="grid h-8 w-full grid-cols-4 sm:flex sm:w-auto">
             {RANGES.map((r) => (
               <TabsTrigger key={r.value} value={r.value} className="px-2.5 py-1 text-xs">{r.label}</TabsTrigger>
             ))}

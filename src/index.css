@@ -49,9 +49,27 @@
     --warning: 38 92% 50%;
   }
   * { border-color: hsl(var(--border)); box-sizing: border-box; }
-  body { margin: 0; background-color: hsl(var(--background)); color: hsl(var(--foreground)); font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    /* Native-app feel: no rubber-band bounce, faster taps. */
+    overscroll-behavior-y: none;
+    touch-action: manipulation;
+  }
   #root { min-height: 100svh; display: flex; flex-direction: column; }
+  /* Don't let users text-select the app chrome (buttons, nav, labels) — feels native.
+     Inputs/textareas stay selectable below. */
+  button, a, label, [role="button"], nav { user-select: none; -webkit-user-select: none; }
+  input, textarea, [contenteditable] { user-select: text; -webkit-user-select: text; }
 }
+
+@utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+@utility pt-safe { padding-top: env(safe-area-inset-top); }
 
 @theme inline {
   --color-background: hsl(var(--background));

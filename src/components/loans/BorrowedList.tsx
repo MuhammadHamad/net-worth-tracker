@@ -19,9 +19,9 @@ export function BorrowedList() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between space-y-0">
-        <CardTitle>Money I Owe</CardTitle>
-        <span className="text-sm font-semibold text-destructive">{format(totalOwed)}</span>
+      <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
+        <CardTitle className="truncate">Money I Owe</CardTitle>
+        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-destructive">{format(totalOwed)}</span>
       </CardHeader>
       <CardContent>
         {borrowed.length === 0 ? (

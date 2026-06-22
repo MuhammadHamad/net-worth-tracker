@@ -53,11 +53,20 @@ describe('calculateNetWorth', () => {
     expect(m.totalExpenses).toBe(30000);
   });
 
-  it('excludes settled loans from net worth', () => {
-    const active = calculateNetWorth([lent(20000), borrowed(50000)]);
-    const settled = calculateNetWorth([lent(20000, true), borrowed(50000, true)]);
-    expect(active.netWorth).toBe(20000 - 50000);
-    expect(settled.netWorth).toBe(0); // both settled drop out
+  it('settling a loan is net-worth-neutral (cash replaces the receivable/liability)', () => {
+    // Lending then getting it back: the receivable becomes cash — net worth unchanged.
+    const lentActive = calculateNetWorth([lent(20000)]);
+    const lentSettled = calculateNetWorth([lent(20000, true)]);
+    expect(lentActive.netWorth).toBe(20000);
+    expect(lentSettled.netWorth).toBe(20000); // NOT 0 — you still have the money, now as cash
+    expect(lentSettled.cashBalance).toBe(20000);
+
+    // Borrowing then repaying: the debt and the cash cancel — net worth unchanged.
+    const borrowedActive = calculateNetWorth([borrowed(50000)]);
+    const borrowedSettled = calculateNetWorth([borrowed(50000, true)]);
+    expect(borrowedActive.netWorth).toBe(-50000);
+    expect(borrowedSettled.netWorth).toBe(-50000); // NOT 0 — repaying it cost you cash
+    expect(borrowedSettled.cashBalance).toBe(-50000);
   });
 
   it('can go negative when debts exceed assets and cash', () => {

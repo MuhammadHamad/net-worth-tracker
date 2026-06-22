@@ -19,9 +19,9 @@ export function LentList() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between space-y-0">
-        <CardTitle>Money Owed to Me</CardTitle>
-        <span className="text-sm font-semibold text-[hsl(var(--success))]">{format(totalOut)}</span>
+      <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
+        <CardTitle className="truncate">Money Owed to Me</CardTitle>
+        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-[hsl(var(--success))]">{format(totalOut)}</span>
       </CardHeader>
       <CardContent>
         {lent.length === 0 ? (
