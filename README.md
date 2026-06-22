@@ -33,7 +33,7 @@ npm run lint
 ## Optional cloud sync (Supabase)
 
 The app is **local-first** and works with no backend. Cloud sync is opt-in: it adds
-cross-device backup via passwordless magic-link sign-in, and only appears once configured.
+cross-device backup via email + password sign-in, and only appears once configured.
 
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql) (creates the
