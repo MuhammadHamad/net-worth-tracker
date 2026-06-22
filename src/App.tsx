@@ -2,8 +2,11 @@ import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
 import { PWAPrompts } from '@/components/pwa/PWAPrompts';
+import { WelcomeScreen } from '@/components/auth/WelcomeScreen';
 import { useThemeStore } from '@/store/useThemeStore';
-import { initAuth } from '@/store/useAuthStore';
+import { useUiStore } from '@/store/useUiStore';
+import { useAuthStore, initAuth } from '@/store/useAuthStore';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { initSync } from '@/lib/sync';
 import Dashboard from '@/pages/Dashboard';
 import Transactions from '@/pages/Transactions';
@@ -25,6 +28,17 @@ export default function App() {
     initSync();
   }, []);
 
+  const ready = useAuthStore((s) => s.ready);
+  const user = useAuthStore((s) => s.user);
+  const authSkipped = useUiStore((s) => s.authSkipped);
+
+  // Welcome/auth screen only applies when cloud sync is configured. Local-only
+  // builds never gate. Wait for the session check so signed-in users don't flash it.
+  if (isSupabaseConfigured) {
+    if (!ready) return <Splash />;
+    if (!user && !authSkipped) return <WelcomeScreen />;
+  }
+
   return (
     <>
       <Routes>
@@ -39,5 +53,13 @@ export default function App() {
       </Routes>
       <PWAPrompts />
     </>
+  );
+}
+
+function Splash() {
+  return (
+    <div className="flex min-h-svh items-center justify-center">
+      <div className="h-7 w-7 animate-spin rounded-full border-2 border-muted border-t-primary" />
+    </div>
   );
 }
