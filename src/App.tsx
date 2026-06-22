@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
 import { PWAPrompts } from '@/components/pwa/PWAPrompts';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { WelcomeScreen } from '@/components/auth/WelcomeScreen';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useUiStore } from '@/store/useUiStore';
@@ -36,7 +37,7 @@ export default function App() {
   // builds never gate. Wait for the session check so signed-in users don't flash it.
   if (isSupabaseConfigured) {
     if (!ready) return <Splash />;
-    if (!user && !authSkipped) return <WelcomeScreen />;
+    if (!user && !authSkipped) return <><WelcomeScreen /><OfflineIndicator /></>;
   }
 
   return (
@@ -52,6 +53,7 @@ export default function App() {
         </Route>
       </Routes>
       <PWAPrompts />
+      <OfflineIndicator />
     </>
   );
 }
