@@ -1,30 +1,41 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Theme = 'light' | 'dark';
+export type Mode = 'light' | 'dark';
+export type Palette = 'classic' | 'aurora';
 
 interface ThemeStore {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-  toggleTheme: () => void;
+  mode: Mode;
+  palette: Palette;
+  setMode: (m: Mode) => void;
+  toggleMode: () => void;
+  setPalette: (p: Palette) => void;
 }
 
-function applyTheme(theme: Theme) {
+export function applyAppearance(mode: Mode, palette: Palette) {
   const root = document.documentElement;
-  if (theme === 'dark') root.classList.add('dark');
-  else root.classList.remove('dark');
+  root.classList.toggle('dark', mode === 'dark');
+  root.setAttribute('data-theme', palette);
 }
 
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set, get) => ({
-      theme: 'light',
-      setTheme: (t) => { applyTheme(t); set({ theme: t }); },
-      toggleTheme: () => { const t = get().theme === 'dark' ? 'light' : 'dark'; applyTheme(t); set({ theme: t }); },
+      mode: 'light',
+      palette: 'classic',
+      setMode: (m) => { applyAppearance(m, get().palette); set({ mode: m }); },
+      toggleMode: () => { const m: Mode = get().mode === 'dark' ? 'light' : 'dark'; applyAppearance(m, get().palette); set({ mode: m }); },
+      setPalette: (p) => { applyAppearance(get().mode, p); set({ palette: p }); },
     }),
     {
       name: 'nw_theme',
-      onRehydrateStorage: () => (state) => { if (state) applyTheme(state.theme); },
+      version: 1,
+      // Migrate the old { theme: 'light' | 'dark' } shape into { mode, palette }.
+      migrate: (persisted: unknown) => {
+        const p = (persisted ?? {}) as { theme?: Mode; mode?: Mode; palette?: Palette };
+        return { mode: p.mode ?? p.theme ?? 'light', palette: p.palette ?? 'classic' };
+      },
+      onRehydrateStorage: () => (state) => { if (state) applyAppearance(state.mode, state.palette); },
     }
   )
 );

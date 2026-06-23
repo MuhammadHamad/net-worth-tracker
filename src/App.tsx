@@ -20,11 +20,13 @@ import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
 
 export default function App() {
-  // Apply persisted theme on first mount (covers the initial paint after rehydration).
-  const theme = useThemeStore((s) => s.theme);
+  // Apply persisted appearance on first mount (covers the initial paint after rehydration).
+  const mode = useThemeStore((s) => s.mode);
+  const palette = useThemeStore((s) => s.palette);
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.documentElement.setAttribute('data-theme', palette);
+  }, [mode, palette]);
 
   // Start cloud auth + offline-first sync (both no-op unless Supabase is configured).
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { Moon, Sun, ShieldCheck } from 'lucide-react';
+import { Moon, Sun, ShieldCheck, Check } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -8,14 +8,22 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
 import { useProfileStore } from '@/store/useProfileStore';
-import { useThemeStore } from '@/store/useThemeStore';
+import { useThemeStore, type Palette } from '@/store/useThemeStore';
 import { CURRENCIES, type Currency } from '@/types';
+import { cn } from '@/lib/utils';
+
+const THEMES: { value: Palette; label: string; swatch: string }[] = [
+  { value: 'classic', label: 'Classic', swatch: 'linear-gradient(135deg, hsl(221 83% 53%), hsl(243 75% 52%))' },
+  { value: 'aurora', label: 'Aurora', swatch: 'linear-gradient(135deg, hsl(266 85% 60%), hsl(288 80% 60%) 45%, hsl(196 90% 52%))' },
+];
 
 export default function Settings() {
   const profile = useProfileStore((s) => s.profile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
-  const theme = useThemeStore((s) => s.theme);
-  const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  const mode = useThemeStore((s) => s.mode);
+  const toggleMode = useThemeStore((s) => s.toggleMode);
+  const palette = useThemeStore((s) => s.palette);
+  const setPalette = useThemeStore((s) => s.setPalette);
 
   return (
     <div>
@@ -57,15 +65,43 @@ export default function Settings() {
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Theme</p>
+              <div className="grid grid-cols-2 gap-3">
+                {THEMES.map((t) => {
+                  const active = palette === t.value;
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setPalette(t.value)}
+                      className={cn(
+                        'relative overflow-hidden rounded-xl border p-3 text-left transition-all active:scale-[0.98]',
+                        active ? 'border-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'border-input hover:bg-accent'
+                      )}
+                    >
+                      <div className="h-14 w-full rounded-lg shadow-sm" style={{ backgroundImage: t.swatch }} />
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-sm font-medium">{t.label}</span>
+                        {active && <Check className="h-4 w-4 text-primary" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Separator />
+
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Dark mode</p>
-                <p className="text-xs text-muted-foreground">{theme === 'dark' ? 'On' : 'Off'}</p>
+                <p className="text-xs text-muted-foreground">{mode === 'dark' ? 'On' : 'Off'}</p>
               </div>
-              <Button variant="outline" onClick={toggleTheme} className="gap-2">
-                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                {theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+              <Button variant="outline" onClick={toggleMode} className="gap-2">
+                {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {mode === 'dark' ? 'Switch to light' : 'Switch to dark'}
               </Button>
             </div>
           </CardContent>

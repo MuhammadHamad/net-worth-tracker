@@ -59,7 +59,7 @@ export function OnboardingWizard() {
     <div className="flex min-h-svh flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg">
+          <div className="bg-brand-gradient flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg">
             <TrendingUp className="h-7 w-7" />
           </div>
           <h1 className="mt-4 text-2xl font-bold tracking-tight">

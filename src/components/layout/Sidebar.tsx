@@ -10,7 +10,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:z-40 md:flex md:w-56 md:flex-col border-r bg-card">
       <div className="flex h-16 items-center gap-2 px-6 border-b">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+        <div className="bg-brand-gradient flex h-8 w-8 items-center justify-center rounded-md text-white">
           <TrendingUp className="h-5 w-5" />
         </div>
         <span className="font-semibold tracking-tight">NetWorth</span>
