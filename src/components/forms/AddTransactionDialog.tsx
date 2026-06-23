@@ -8,7 +8,6 @@ import {
 import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription,
 } from '@/components/ui/drawer';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { QuickAddForm } from './QuickAddForm';
 import { AssetForm } from './AssetForm';
 import { BorrowedForm } from './BorrowedForm';
@@ -23,21 +22,21 @@ type Mode = 'quick' | 'detailed';
 /** Detailed forms for the rarer entry types (asset / borrowed / lent). */
 function DetailedForms({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => void }) {
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <button
         type="button"
         onClick={onBack}
-        className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+        className="mb-3 inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3 w-3" /> Back to quick add
       </button>
-      <Tabs defaultValue="asset" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="asset" className="flex min-h-0 flex-1 flex-col">
+        <TabsList className="grid w-full shrink-0 grid-cols-3">
           <TabsTrigger value="asset">Asset</TabsTrigger>
           <TabsTrigger value="borrowed">Borrowed</TabsTrigger>
           <TabsTrigger value="lent">Lent</TabsTrigger>
         </TabsList>
-        <div className="pt-4">
+        <div className="-mx-4 min-h-0 flex-1 overflow-y-auto px-4 pt-4">
           <TabsContent value="asset"><AssetForm onSuccess={onSuccess} /></TabsContent>
           <TabsContent value="borrowed"><BorrowedForm onSuccess={onSuccess} /></TabsContent>
           <TabsContent value="lent"><LentForm onSuccess={onSuccess} /></TabsContent>
@@ -71,14 +70,14 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader className="pb-0">
+        <DrawerContent className="flex max-h-[92svh] flex-col">
+          <DrawerHeader className="shrink-0 pb-2">
             <DrawerTitle>{title}</DrawerTitle>
             <DrawerDescription className="sr-only">Log income, expense, asset, or a loan.</DrawerDescription>
           </DrawerHeader>
-          <ScrollArea className="max-h-[80svh] px-4 pb-8 pt-3">
+          <div className="flex min-h-0 flex-1 flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <AddBody onSuccess={close} mode={mode} setMode={setMode} />
-          </ScrollArea>
+          </div>
         </DrawerContent>
       </Drawer>
     );
@@ -87,12 +86,14 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[88vh] max-w-md flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="sr-only">Log income, expense, asset, or a loan.</DialogDescription>
         </DialogHeader>
-        <AddBody onSuccess={close} mode={mode} setMode={setMode} />
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <AddBody onSuccess={close} mode={mode} setMode={setMode} />
+        </div>
       </DialogContent>
     </Dialog>
   );

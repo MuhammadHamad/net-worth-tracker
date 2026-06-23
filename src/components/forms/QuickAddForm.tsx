@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarDays, StickyNote, ArrowRight } from 'lucide-react';
+import { CalendarDays, StickyNote, Landmark } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useUiStore } from '@/store/useUiStore';
@@ -62,30 +62,38 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
     onSuccess();
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Type toggle */}
-      <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
-        {(['expense', 'income'] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setType(t)}
-            className={cn(
-              'rounded-md py-2 text-sm font-medium capitalize transition-colors',
-              type === t ? 'bg-background shadow-sm' : 'text-muted-foreground'
-            )}
-          >
-            {t}
-          </button>
-        ))}
+  // ── Pinned top: type selector + amount ──────────────────────────────────────
+  const header = (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="grid flex-1 grid-cols-2 gap-1 rounded-lg bg-muted p-1">
+          {(['expense', 'income'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setType(t)}
+              className={cn(
+                'rounded-md py-2 text-sm font-medium capitalize transition-colors',
+                type === t ? 'bg-background shadow-sm' : 'text-muted-foreground'
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={onMore}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-input px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
+        >
+          <Landmark className="h-4 w-4" /> Asset / Loan
+        </button>
       </div>
 
-      {/* Amount */}
       {isMobile ? (
-        <div className="py-1 text-center">
-          <div className={cn('text-5xl font-bold tracking-tight', type === 'expense' ? 'text-destructive' : 'text-[hsl(var(--success))]')}>
-            <span className="mr-1 text-2xl text-muted-foreground">{symbol}</span>
+        <div className="text-center">
+          <div className={cn('text-4xl font-bold tracking-tight', type === 'expense' ? 'text-destructive' : 'text-[hsl(var(--success))]')}>
+            <span className="mr-1 text-xl text-muted-foreground">{symbol}</span>
             {displayAmount(amount)}
           </div>
         </div>
@@ -103,8 +111,12 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
           />
         </div>
       )}
+    </div>
+  );
 
-      {/* Category chips */}
+  // ── Scrollable middle: categories + date/note ──────────────────────────────
+  const middle = (
+    <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         {cats.map((c) => {
           const active = c.value === selectedCat;
@@ -124,7 +136,6 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
         })}
       </div>
 
-      {/* Date + note toggles */}
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -143,21 +154,35 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
       </div>
       {showDate && <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />}
       {showNote && <Textarea placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} rows={2} />}
+    </div>
+  );
 
-      {/* Keypad (mobile) */}
+  // ── Pinned footer: keypad (mobile) + Add button — always visible ───────────
+  const footer = (
+    <div className="space-y-3">
       {isMobile && <NumberPad onKey={(k) => setAmount((a) => applyAmountKey(a, k))} />}
-
       <Button onClick={onSave} disabled={!canSave} className="h-12 w-full text-base">
         {type === 'expense' ? 'Add Expense' : 'Add Income'}
       </Button>
+    </div>
+  );
 
-      <button
-        type="button"
-        onClick={onMore}
-        className="flex w-full items-center justify-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-      >
-        Add an asset or loan instead <ArrowRight className="h-3 w-3" />
-      </button>
+  if (isMobile) {
+    // Fixed header + footer, scrollable middle, so the Add button never scrolls away.
+    return (
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="shrink-0">{header}</div>
+        <div className="-mx-4 min-h-0 flex-1 overflow-y-auto px-4 py-3">{middle}</div>
+        <div className="shrink-0 pt-1">{footer}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {header}
+      {middle}
+      {footer}
     </div>
   );
 }
