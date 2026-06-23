@@ -4,6 +4,43 @@ import { format, parseISO, subMonths, startOfMonth, isSameMonth, isAfter, subDay
 export interface MoneyFlowPoint { month: string; income: number; expense: number; }
 export interface NetWorthPoint { date: string; label: string; netWorth: number; }
 
+export interface NetWorthTrend {
+  delta: number;
+  pct: number | null;
+  hasBaseline: boolean;
+  /** Baseline came from before the window, so the change is "since you started". */
+  sinceStart: boolean;
+}
+
+/**
+ * Change in net worth versus a baseline ~`days` ago. Falls back to the earliest
+ * snapshot ("since you started") when there isn't enough history for the window.
+ */
+export function getNetWorthTrend(snapshots: NetWorthSnapshot[], current: number, days = 7): NetWorthTrend {
+  const none: NetWorthTrend = { delta: 0, pct: null, hasBaseline: false, sinceStart: false };
+  if (snapshots.length === 0) return none;
+
+  const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date));
+  const cutoff = format(subDays(new Date(), days), 'yyyy-MM-dd');
+  const today = format(new Date(), 'yyyy-MM-dd');
+
+  const onOrBeforeCutoff = sorted.filter((s) => s.date <= cutoff);
+  let baseline = onOrBeforeCutoff.at(-1) ?? null;
+  let sinceStart = false;
+
+  if (!baseline) {
+    // Not enough history for the window — compare against the first recorded day.
+    const beforeToday = sorted.filter((s) => s.date < today);
+    baseline = beforeToday[0] ?? null;
+    sinceStart = baseline != null;
+  }
+
+  if (!baseline) return none;
+  const delta = current - baseline.netWorth;
+  const pct = baseline.netWorth !== 0 ? (delta / Math.abs(baseline.netWorth)) * 100 : null;
+  return { delta, pct, hasBaseline: true, sinceStart };
+}
+
 /** Income vs expense totals for each of the last `monthsBack` months (oldest → newest). */
 export function getMoneyFlowData(transactions: Transaction[], monthsBack = 6): MoneyFlowPoint[] {
   const now = new Date();

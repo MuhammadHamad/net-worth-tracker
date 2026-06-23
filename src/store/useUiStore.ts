@@ -14,6 +14,9 @@ interface UiStore {
   /** First-run setup completed (or skipped) — never show onboarding again. */
   onboardingDone: boolean;
   setOnboardingDone: (v: boolean) => void;
+  /** Highest net-worth milestone already celebrated. -1 = not yet baselined. */
+  milestoneReached: number;
+  setMilestoneReached: (v: number) => void;
 }
 
 export const useUiStore = create<UiStore>()(
@@ -27,6 +30,8 @@ export const useUiStore = create<UiStore>()(
       setLastIncomeCategory: (c) => set({ lastIncomeCategory: c }),
       onboardingDone: false,
       setOnboardingDone: (v) => set({ onboardingDone: v }),
+      milestoneReached: -1,
+      setMilestoneReached: (v) => set({ milestoneReached: v }),
     }),
     { name: 'nw_ui' }
   )

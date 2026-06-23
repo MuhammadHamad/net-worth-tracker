@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Sparkles } from 'lucide-react';
 import { useNetWorthMetrics } from '@/hooks/useNetWorthMetrics';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
+import { getNetWorthTrend } from '@/lib/chartTransformers';
 import { cn } from '@/lib/utils';
 
 export function NetWorthHeroCard() {
@@ -10,19 +11,15 @@ export function NetWorthHeroCard() {
   const { format } = useCurrency();
   const snapshots = useSnapshotStore((s) => s.snapshots);
 
-  // % change vs the most recent earlier snapshot (yesterday or last recorded day).
-  const { pct, direction } = useMemo(() => {
-    const sorted = [...snapshots].sort((a, b) => a.date.localeCompare(b.date));
-    const prev = sorted.filter((s) => s.netWorth !== metrics.netWorth).at(-1) ?? sorted.at(-2);
-    if (!prev || prev.netWorth === 0) return { pct: null as number | null, direction: 'flat' as const };
-    const change = ((metrics.netWorth - prev.netWorth) / Math.abs(prev.netWorth)) * 100;
-    return {
-      pct: change,
-      direction: change > 0 ? ('up' as const) : change < 0 ? ('down' as const) : ('flat' as const),
-    };
-  }, [snapshots, metrics.netWorth]);
+  // Real change versus ~a week ago (or since you started, if newer).
+  const trend = useMemo(
+    () => getNetWorthTrend(snapshots, metrics.netWorth, 7),
+    [snapshots, metrics.netWorth]
+  );
 
   const positive = metrics.netWorth >= 0;
+  const direction = !trend.hasBaseline || trend.delta === 0 ? 'flat' : trend.delta > 0 ? 'up' : 'down';
+  const period = trend.sinceStart ? 'so far' : 'this week';
 
   return (
     <div className="bg-brand-gradient relative overflow-hidden rounded-2xl p-6 text-white shadow-lg md:p-8">
@@ -34,9 +31,9 @@ export function NetWorthHeroCard() {
           {format(metrics.netWorth)}
         </div>
         <div className="mt-3 flex items-center gap-2 text-sm">
-          {pct === null ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-white/80">
-              <Minus className="h-3.5 w-3.5" /> No prior data
+          {!trend.hasBaseline ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-white/80">
+              <Sparkles className="h-3.5 w-3.5" /> Your starting point — watch it grow
             </span>
           ) : (
             <span
@@ -49,8 +46,9 @@ export function NetWorthHeroCard() {
             >
               {direction === 'up' && <TrendingUp className="h-3.5 w-3.5" />}
               {direction === 'down' && <TrendingDown className="h-3.5 w-3.5" />}
-              {direction === 'flat' && <Minus className="h-3.5 w-3.5" />}
-              {pct > 0 ? '+' : ''}{pct.toFixed(1)}% vs last snapshot
+              {trend.delta >= 0 ? '+' : '−'}{format(Math.abs(trend.delta))}
+              {trend.pct !== null && <span className="opacity-75"> · {trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(1)}%</span>}
+              <span className="opacity-75"> {period}</span>
             </span>
           )}
         </div>

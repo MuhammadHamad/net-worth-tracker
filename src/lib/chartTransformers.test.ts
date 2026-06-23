@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { getMoneyFlowData, getNetWorthHistoryData } from './chartTransformers';
+import { getMoneyFlowData, getNetWorthHistoryData, getNetWorthTrend } from './chartTransformers';
+import { highestMilestone } from './milestones';
 import type { Transaction, NetWorthSnapshot } from '@/types';
-import { format, subMonths } from 'date-fns';
+import { format, subMonths, subDays } from 'date-fns';
 
 const income = (amount: number, date: string): Transaction => ({ id: crypto.randomUUID(), type: 'income', amount, date, category: 'salary', createdAt: date });
 const expense = (amount: number, date: string): Transaction => ({ id: crypto.randomUUID(), type: 'expense', amount, date, category: 'food', createdAt: date });
@@ -50,5 +51,38 @@ describe('getNetWorthHistoryData', () => {
     const longAgo = format(subMonths(new Date(), 3), 'yyyy-MM-dd');
     const out = getNetWorthHistoryData([snap(longAgo, 1), snap(today, 2)], 'week');
     expect(out.map((p) => p.netWorth)).toEqual([2]);
+  });
+
+  describe('getNetWorthTrend', () => {
+    it('reports no baseline with no snapshots', () => {
+      expect(getNetWorthTrend([], 1000)).toEqual({ delta: 0, pct: null, hasBaseline: false, sinceStart: false });
+    });
+
+    it('compares against a snapshot ~a week ago', () => {
+      const weekAgo = format(subDays(new Date(), 8), 'yyyy-MM-dd');
+      const t = getNetWorthTrend([snap(weekAgo, 100000)], 112000, 7);
+      expect(t.hasBaseline).toBe(true);
+      expect(t.sinceStart).toBe(false);
+      expect(t.delta).toBe(12000);
+      expect(t.pct).toBeCloseTo(12);
+    });
+
+    it('falls back to the earliest snapshot ("since you started") within the window', () => {
+      const twoDaysAgo = format(subDays(new Date(), 2), 'yyyy-MM-dd');
+      const t = getNetWorthTrend([snap(twoDaysAgo, 50000)], 60000, 7);
+      expect(t.hasBaseline).toBe(true);
+      expect(t.sinceStart).toBe(true);
+      expect(t.delta).toBe(10000);
+    });
+  });
+});
+
+describe('highestMilestone', () => {
+  it('returns the largest threshold at or below the value', () => {
+    expect(highestMilestone(0)).toBe(0);
+    expect(highestMilestone(9_999)).toBe(0);
+    expect(highestMilestone(120_000)).toBe(100_000);
+    expect(highestMilestone(1_200_000)).toBe(1_000_000);
+    expect(highestMilestone(-5000)).toBe(0);
   });
 });

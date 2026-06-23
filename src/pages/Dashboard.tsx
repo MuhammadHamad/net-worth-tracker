@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { NetWorthHeroCard } from '@/components/dashboard/NetWorthHeroCard';
 import { SummaryCards } from '@/components/dashboard/SummaryCards';
@@ -10,13 +11,18 @@ import { Button } from '@/components/ui/button';
 import { useNetWorthMetrics } from '@/hooks/useNetWorthMetrics';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
 import { useProfileStore } from '@/store/useProfileStore';
-import { todayISO } from '@/lib/formatters';
+import { useUiStore } from '@/store/useUiStore';
+import { todayISO, formatCurrency } from '@/lib/formatters';
+import { highestMilestone } from '@/lib/milestones';
 
 export default function Dashboard() {
   const metrics = useNetWorthMetrics();
   const snapshots = useSnapshotStore((s) => s.snapshots);
   const saveSnapshot = useSnapshotStore((s) => s.saveSnapshot);
   const name = useProfileStore((s) => s.profile.name);
+  const currency = useProfileStore((s) => s.profile.currency);
+  const milestoneReached = useUiStore((s) => s.milestoneReached);
+  const setMilestoneReached = useUiStore((s) => s.setMilestoneReached);
 
   // Record (or refresh) today's snapshot so the history chart accumulates day by day.
   useEffect(() => {
@@ -33,6 +39,22 @@ export default function Dashboard() {
     }
     // Re-run when the computed net worth changes within the day.
   }, [metrics.netWorth, metrics.totalAssets, metrics.totalDebt, metrics.cashBalance, snapshots, saveSnapshot]);
+
+  // Celebrate crossing a new net-worth milestone. The first observation only
+  // baselines (so existing balances never trigger a retroactive celebration).
+  useEffect(() => {
+    const current = highestMilestone(metrics.netWorth);
+    if (milestoneReached < 0) { setMilestoneReached(current); return; }
+    if (current > milestoneReached) {
+      toast.success('🎉 New milestone!', {
+        description: `You crossed ${formatCurrency(current, currency)} net worth.`,
+        duration: 6000,
+      });
+      setMilestoneReached(current);
+    } else if (current < milestoneReached) {
+      setMilestoneReached(current); // dropped below — allow re-celebrating later
+    }
+  }, [metrics.netWorth, milestoneReached, setMilestoneReached, currency]);
 
   return (
     <div className="space-y-6">
