@@ -11,6 +11,9 @@ interface UiStore {
   lastIncomeCategory: IncomeCategory;
   setLastExpenseCategory: (c: ExpenseCategory) => void;
   setLastIncomeCategory: (c: IncomeCategory) => void;
+  /** First-run setup completed (or skipped) — never show onboarding again. */
+  onboardingDone: boolean;
+  setOnboardingDone: (v: boolean) => void;
 }
 
 export const useUiStore = create<UiStore>()(
@@ -22,6 +25,8 @@ export const useUiStore = create<UiStore>()(
       lastIncomeCategory: 'salary',
       setLastExpenseCategory: (c) => set({ lastExpenseCategory: c }),
       setLastIncomeCategory: (c) => set({ lastIncomeCategory: c }),
+      onboardingDone: false,
+      setOnboardingDone: (v) => set({ onboardingDone: v }),
     }),
     { name: 'nw_ui' }
   )
