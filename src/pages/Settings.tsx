@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
+import { BackupCard } from '@/components/settings/BackupCard';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useThemeStore, type Palette } from '@/store/useThemeStore';
 import { CURRENCIES, type Currency } from '@/types';
@@ -106,6 +107,8 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        <BackupCard />
 
         <Card>
           <CardContent className="flex items-start gap-3 p-4">
