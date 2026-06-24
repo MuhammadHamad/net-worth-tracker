@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getMoneyFlowData } from '@/lib/chartTransformers';
+import { useT } from '@/i18n';
 
 export function MoneyFlowChart() {
+  const t = useT();
   const transactions = useTransactionStore((s) => s.transactions);
   const { format } = useCurrency();
   const data = useMemo(() => getMoneyFlowData(transactions, 6), [transactions]);
@@ -15,8 +17,8 @@ export function MoneyFlowChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Money Flow</CardTitle>
-        <p className="text-sm text-muted-foreground">Income vs expenses, last 6 months</p>
+        <CardTitle>{t('chart.moneyFlow')}</CardTitle>
+        <p className="text-sm text-muted-foreground">{t('chart.moneyFlowSub')}</p>
       </CardHeader>
       <CardContent>
         {hasData ? (
@@ -32,16 +34,16 @@ export function MoneyFlowChart() {
                 tickFormatter={(v) => compact(Number(v))}
               />
               <Tooltip
-                formatter={(value, name) => [format(Number(value)), name === 'income' ? 'Income' : 'Expense']}
+                formatter={(value, name) => [format(Number(value)), name === 'income' ? t('common.income') : t('common.expense')]}
                 contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8, color: 'hsl(var(--popover-foreground))' }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="income" name="Income" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expense" name="Expense" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="income" name={t('common.income')} fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="expense" name={t('common.expense')} fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <EmptyChart label="Add income or expenses to see your money flow." />
+          <EmptyChart label={t('chart.moneyFlowEmpty')} />
         )}
       </CardContent>
     </Card>

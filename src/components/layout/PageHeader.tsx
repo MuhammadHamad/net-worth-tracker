@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Settings } from 'lucide-react';
+import { useT } from '@/i18n';
 
 interface PageHeaderProps {
   title: string;
@@ -8,6 +9,7 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, description, action }: PageHeaderProps) {
+  const t = useT();
   return (
     <div className="mb-6 flex items-start justify-between gap-4">
       <div>
@@ -20,7 +22,7 @@ export function PageHeader({ title, description, action }: PageHeaderProps) {
         <Link
           to="/settings"
           className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          aria-label="Settings"
+          aria-label={t('nav.settings')}
         >
           <Settings className="h-5 w-5" />
         </Link>

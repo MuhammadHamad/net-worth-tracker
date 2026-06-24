@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
+import { tRaw } from '@/i18n';
 
 interface Props { children: ReactNode }
 interface State { error: Error | null }
@@ -21,11 +22,11 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-3 p-6 text-center">
-          <h1 className="text-xl font-semibold">Something went wrong</h1>
+          <h1 className="text-xl font-semibold">{tRaw('errboundary.title')}</h1>
           <p className="max-w-sm text-sm text-muted-foreground">
-            The app hit an unexpected error. Your data is safe on this device — reloading usually fixes it.
+            {tRaw('errboundary.desc')}
           </p>
-          <Button onClick={() => window.location.reload()}>Reload</Button>
+          <Button onClick={() => window.location.reload()}>{tRaw('common.reload')}</Button>
         </div>
       );
     }

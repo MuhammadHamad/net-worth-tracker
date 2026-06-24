@@ -3,9 +3,11 @@ import type { Asset } from '@/types';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { Card, CardContent } from '@/components/ui/card';
+import { useT } from '@/i18n';
 import { AssetCard } from './AssetCard';
 
 export function AssetGrid() {
+  const t = useT();
   const transactions = useTransactionStore((s) => s.transactions);
   const { format } = useCurrency();
 
@@ -21,7 +23,7 @@ export function AssetGrid() {
     return (
       <Card>
         <CardContent className="py-12 text-center text-sm text-muted-foreground">
-          No assets yet. Add a vehicle, gold, savings, or anything you own.
+          {t('assets.empty')}
         </CardContent>
       </Card>
     );
@@ -31,7 +33,7 @@ export function AssetGrid() {
     <div className="space-y-4">
       <Card>
         <CardContent className="flex items-center justify-between p-4">
-          <span className="text-sm text-muted-foreground">{assets.length} asset{assets.length > 1 ? 's' : ''}</span>
+          <span className="text-sm text-muted-foreground">{assets.length === 1 ? t('assets.countOne', { n: assets.length }) : t('assets.countMany', { n: assets.length })}</span>
           <span className="text-lg font-bold">{format(total)}</span>
         </CardContent>
       </Card>

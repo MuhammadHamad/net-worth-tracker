@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { ASSET_CATEGORIES, type Asset, type AssetCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { useT, type TranslationKey } from '@/i18n';
+import { categoryKey } from '@/lib/transactionView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,15 +14,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  estimatedValue: z.number({ error: 'Value is required' }).positive('Value must be positive'),
+  name: z.string().min(1, 'err.nameRequired'),
+  estimatedValue: z.number({ error: 'err.valueRequired' }).positive('err.valuePositive'),
   category: z.enum(['vehicle', 'real_estate', 'precious_metals', 'investments', 'savings', 'other']),
-  dateAdded: z.string().min(1, 'Date is required'),
+  dateAdded: z.string().min(1, 'err.dateRequired'),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
 export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: Asset }) {
+  const t = useT();
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
@@ -40,10 +43,10 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
     };
     if (editing) {
       updateTransaction({ ...editing, ...fields });
-      toast.success('Asset updated');
+      toast.success(t('toast.assetUpdated'));
     } else {
       addTransaction({ id: crypto.randomUUID(), type: 'asset', createdAt: nowISO(), ...fields });
-      toast.success('Asset added');
+      toast.success(t('toast.assetAdded'));
     }
     onSuccess?.();
   };
@@ -51,39 +54,39 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
   return (
     <form onSubmit={handleSubmit(onSubmit as never)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="asset-name">Name</Label>
-        <Input id="asset-name" placeholder="e.g. Honda 125, Gold ring" {...register('name')} />
-        {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+        <Label htmlFor="asset-name">{t('form.name')}</Label>
+        <Input id="asset-name" placeholder={t('form.assetNamePlaceholder')} {...register('name')} />
+        {errors.name && <p className="text-xs text-destructive">{t(errors.name.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="asset-value">Estimated Value</Label>
+        <Label htmlFor="asset-value">{t('form.estimatedValue')}</Label>
         <Input id="asset-value" type="number" step="0.01" inputMode="decimal" placeholder="0" {...register('estimatedValue', { valueAsNumber: true })} />
-        {errors.estimatedValue && <p className="text-xs text-destructive">{errors.estimatedValue.message}</p>}
+        {errors.estimatedValue && <p className="text-xs text-destructive">{t(errors.estimatedValue.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label>Category</Label>
+        <Label>{t('form.category')}</Label>
         <Select value={watch('category')} onValueChange={(v) => setValue('category', v as AssetCategory)}>
-          <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t('form.selectCategory')} /></SelectTrigger>
           <SelectContent>
-            {ASSET_CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+            {ASSET_CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{t(categoryKey('asset', c.value))}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="asset-date">Date Added</Label>
+        <Label htmlFor="asset-date">{t('form.dateAdded')}</Label>
         <Input id="asset-date" type="date" {...register('dateAdded')} />
-        {errors.dateAdded && <p className="text-xs text-destructive">{errors.dateAdded.message}</p>}
+        {errors.dateAdded && <p className="text-xs text-destructive">{t(errors.dateAdded.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="asset-notes">Notes (optional)</Label>
-        <Textarea id="asset-notes" placeholder="Details" {...register('notes')} />
+        <Label htmlFor="asset-notes">{t('form.notesOptional')}</Label>
+        <Textarea id="asset-notes" placeholder={t('form.detailsPlaceholder')} {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Asset'}</Button>
+      <Button type="submit" className="w-full">{editing ? t('common.saveChanges') : t('add.addAsset')}</Button>
     </form>
   );
 }

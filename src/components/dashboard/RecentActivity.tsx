@@ -5,8 +5,10 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTransactionView } from '@/lib/transactionView';
 import { formatShortDate } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
 export function RecentActivity() {
+  const t = useT();
   const transactions = useTransactionStore((s) => s.transactions);
   const { format } = useCurrency();
 
@@ -18,18 +20,18 @@ export function RecentActivity() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle>{t('recent.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         {recent.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No activity yet. Tap “Add Entry” to start.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t('recent.empty')}</p>
         ) : (
           <ul className="divide-y">
-            {recent.map((t) => {
-              const v = getTransactionView(t);
-              const date = 'date' in t ? t.date : t.dateAdded;
+            {recent.map((tx) => {
+              const v = getTransactionView(tx, t);
+              const date = 'date' in tx ? tx.date : tx.dateAdded;
               return (
-                <li key={t.id} className="flex items-center gap-3 py-3">
+                <li key={tx.id} className="flex items-center gap-3 py-3">
                   <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', v.iconClass)}>
                     <v.icon className="h-4 w-4" />
                   </div>

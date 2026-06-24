@@ -5,16 +5,18 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getNetWorthHistoryData } from '@/lib/chartTransformers';
+import { useT, type TranslationKey } from '@/i18n';
 import type { TimeRange } from '@/types';
 
-const RANGES: { value: TimeRange; label: string }[] = [
-  { value: 'week', label: 'Week' },
-  { value: 'month', label: 'Month' },
-  { value: 'year', label: 'Year' },
-  { value: 'all', label: 'All' },
+const RANGES: { value: TimeRange; labelKey: TranslationKey }[] = [
+  { value: 'week', labelKey: 'range.week' },
+  { value: 'month', labelKey: 'range.month' },
+  { value: 'year', labelKey: 'range.year' },
+  { value: 'all', labelKey: 'range.all' },
 ];
 
 export function NetWorthHistoryChart() {
+  const t = useT();
   const snapshots = useSnapshotStore((s) => s.snapshots);
   const { format } = useCurrency();
   const [range, setRange] = useState<TimeRange>('month');
@@ -25,13 +27,13 @@ export function NetWorthHistoryChart() {
     <Card>
       <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <CardTitle>Net Worth History</CardTitle>
-          <p className="text-sm text-muted-foreground">How your wealth is trending</p>
+          <CardTitle>{t('chart.history')}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t('chart.historySub')}</p>
         </div>
         <Tabs value={range} onValueChange={(v) => setRange(v as TimeRange)}>
           <TabsList className="grid h-8 w-full grid-cols-4 sm:flex sm:w-auto">
             {RANGES.map((r) => (
-              <TabsTrigger key={r.value} value={r.value} className="px-2.5 py-1 text-xs">{r.label}</TabsTrigger>
+              <TabsTrigger key={r.value} value={r.value} className="px-2.5 py-1 text-xs">{t(r.labelKey)}</TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
@@ -56,7 +58,7 @@ export function NetWorthHistoryChart() {
                 tickFormatter={(v) => compact(Number(v))}
               />
               <Tooltip
-                formatter={(value) => [format(Number(value)), 'Net Worth']}
+                formatter={(value) => [format(Number(value)), t('chart.netWorth')]}
                 contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8, color: 'hsl(var(--popover-foreground))' }}
               />
               <Area type="monotone" dataKey="netWorth" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#nwGradient)" />
@@ -64,7 +66,7 @@ export function NetWorthHistoryChart() {
           </ResponsiveContainer>
         ) : (
           <div className="flex h-[260px] items-center justify-center text-center text-sm text-muted-foreground">
-            Your history builds over time — check back as snapshots accumulate day by day.
+            {t('chart.historyEmpty')}
           </div>
         )}
       </CardContent>

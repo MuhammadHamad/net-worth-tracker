@@ -1,16 +1,17 @@
 import { LayoutDashboard, ArrowLeftRight, Wallet, HandCoins, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { TranslationKey } from '@/i18n';
 
 export interface NavItem {
   to: string;
-  label: string;
+  labelKey: TranslationKey;
   icon: LucideIcon;
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
-  { to: '/assets', label: 'Assets', icon: Wallet },
-  { to: '/loans', label: 'Loans', icon: HandCoins },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { to: '/transactions', labelKey: 'nav.transactions', icon: ArrowLeftRight },
+  { to: '/assets', labelKey: 'nav.assets', icon: Wallet },
+  { to: '/loans', labelKey: 'nav.loans', icon: HandCoins },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings },
 ];

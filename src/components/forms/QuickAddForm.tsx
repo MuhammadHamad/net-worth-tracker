@@ -11,6 +11,8 @@ import {
 } from '@/types';
 import { todayISO, nowISO, formatDate } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
+import { categoryKey } from '@/lib/transactionView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,6 +28,7 @@ function displayAmount(amount: string): string {
 }
 
 export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onMore: () => void }) {
+  const t = useT();
   const isMobile = useIsMobile();
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const { lastExpenseCategory, lastIncomeCategory, setLastExpenseCategory, setLastIncomeCategory } = useUiStore();
@@ -53,11 +56,11 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
     if (type === 'expense') {
       addTransaction({ ...base, type: 'expense', category: expenseCat } as Expense);
       setLastExpenseCategory(expenseCat);
-      toast.success('Expense added');
+      toast.success(t('toast.expenseAdded'));
     } else {
       addTransaction({ ...base, type: 'income', category: incomeCat } as Income);
       setLastIncomeCategory(incomeCat);
-      toast.success('Income added');
+      toast.success(t('toast.incomeAdded'));
     }
     onSuccess();
   };
@@ -67,17 +70,17 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="grid flex-1 grid-cols-2 gap-1 rounded-lg bg-muted p-1">
-          {(['expense', 'income'] as const).map((t) => (
+          {(['expense', 'income'] as const).map((qt) => (
             <button
-              key={t}
+              key={qt}
               type="button"
-              onClick={() => setType(t)}
+              onClick={() => setType(qt)}
               className={cn(
-                'rounded-md py-2 text-sm font-medium capitalize transition-colors',
-                type === t ? 'bg-background shadow-sm' : 'text-muted-foreground'
+                'rounded-md py-2 text-sm font-medium transition-colors',
+                type === qt ? 'bg-background shadow-sm' : 'text-muted-foreground'
               )}
             >
-              {t}
+              {qt === 'expense' ? t('common.expense') : t('common.income')}
             </button>
           ))}
         </div>
@@ -86,20 +89,20 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
           onClick={onMore}
           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-input px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
         >
-          <Landmark className="h-4 w-4" /> Asset / Loan
+          <Landmark className="h-4 w-4" /> {t('add.assetLoan')}
         </button>
       </div>
 
       {isMobile ? (
         <div className="text-center">
           <div className={cn('text-4xl font-bold tracking-tight', type === 'expense' ? 'text-destructive' : 'text-[hsl(var(--success))]')}>
-            <span className="mr-1 text-xl text-muted-foreground">{symbol}</span>
+            <span className="me-1 text-xl text-muted-foreground">{symbol}</span>
             {displayAmount(amount)}
           </div>
         </div>
       ) : (
         <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">{symbol}</span>
+          <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">{symbol}</span>
           <Input
             autoFocus
             inputMode="decimal"
@@ -107,7 +110,7 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
             onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
             onKeyDown={(e) => { if (e.key === 'Enter') onSave(); }}
             placeholder="0"
-            className={cn('h-14 pl-9 text-2xl font-bold', type === 'expense' ? 'text-destructive' : 'text-[hsl(var(--success))]')}
+            className={cn('h-14 ps-9 text-2xl font-bold', type === 'expense' ? 'text-destructive' : 'text-[hsl(var(--success))]')}
           />
         </div>
       )}
@@ -130,7 +133,7 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
                 active ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background text-muted-foreground hover:bg-accent'
               )}
             >
-              {c.label}
+              {t(categoryKey(type, c.value))}
             </button>
           );
         })}
@@ -142,18 +145,18 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
           onClick={() => setShowDate((v) => !v)}
           className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium', showDate ? 'border-primary text-primary' : 'border-input text-muted-foreground')}
         >
-          <CalendarDays className="h-3.5 w-3.5" /> {isToday ? 'Today' : formatDate(date)}
+          <CalendarDays className="h-3.5 w-3.5" /> {isToday ? t('common.today') : formatDate(date)}
         </button>
         <button
           type="button"
           onClick={() => setShowNote((v) => !v)}
           className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium', showNote || note ? 'border-primary text-primary' : 'border-input text-muted-foreground')}
         >
-          <StickyNote className="h-3.5 w-3.5" /> {note ? 'Note added' : 'Add note'}
+          <StickyNote className="h-3.5 w-3.5" /> {note ? t('quick.noteAdded') : t('quick.addNote')}
         </button>
       </div>
       {showDate && <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />}
-      {showNote && <Textarea placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} rows={2} />}
+      {showNote && <Textarea placeholder={t('quick.notePlaceholder')} value={note} onChange={(e) => setNote(e.target.value)} rows={2} />}
     </div>
   );
 
@@ -162,7 +165,7 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
     <div className="space-y-3">
       {isMobile && <NumberPad onKey={(k) => setAmount((a) => applyAmountKey(a, k))} />}
       <Button onClick={onSave} disabled={!canSave} className="h-12 w-full text-base">
-        {type === 'expense' ? 'Add Expense' : 'Add Income'}
+        {type === 'expense' ? t('add.addExpense') : t('add.addIncome')}
       </Button>
     </div>
   );

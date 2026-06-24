@@ -12,6 +12,7 @@ import { QuickAddForm } from './QuickAddForm';
 import { AssetForm } from './AssetForm';
 import { BorrowedForm } from './BorrowedForm';
 import { LentForm } from './LentForm';
+import { useT } from '@/i18n';
 
 interface AddTransactionDialogProps {
   trigger: React.ReactNode;
@@ -21,6 +22,7 @@ type Mode = 'quick' | 'detailed';
 
 /** Detailed forms for the rarer entry types (asset / borrowed / lent). */
 function DetailedForms({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => void }) {
+  const t = useT();
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <button
@@ -28,13 +30,13 @@ function DetailedForms({ onSuccess, onBack }: { onSuccess: () => void; onBack: (
         onClick={onBack}
         className="mb-3 inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-3 w-3" /> Back to quick add
+        <ArrowLeft className="h-3 w-3 rtl:rotate-180" /> {t('add.backToQuick')}
       </button>
       <Tabs defaultValue="asset" className="flex min-h-0 flex-1 flex-col">
         <TabsList className="grid w-full shrink-0 grid-cols-3">
-          <TabsTrigger value="asset">Asset</TabsTrigger>
-          <TabsTrigger value="borrowed">Borrowed</TabsTrigger>
-          <TabsTrigger value="lent">Lent</TabsTrigger>
+          <TabsTrigger value="asset">{t('type.asset')}</TabsTrigger>
+          <TabsTrigger value="borrowed">{t('type.borrowed')}</TabsTrigger>
+          <TabsTrigger value="lent">{t('type.lent')}</TabsTrigger>
         </TabsList>
         <div className="-mx-4 min-h-0 flex-1 overflow-y-auto px-4 pt-4">
           <TabsContent value="asset"><AssetForm onSuccess={onSuccess} /></TabsContent>
@@ -53,6 +55,7 @@ function AddBody({ onSuccess, mode, setMode }: { onSuccess: () => void; mode: Mo
 }
 
 export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
+  const t = useT();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>('quick');
@@ -64,7 +67,7 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
     if (next) setMode('quick');
   };
 
-  const title = mode === 'quick' ? 'Add Entry' : 'Add Asset or Loan';
+  const title = mode === 'quick' ? t('common.addEntry') : t('add.addAssetOrLoan');
 
   if (isMobile) {
     return (
@@ -73,7 +76,7 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
         <DrawerContent className="flex max-h-[92svh] flex-col">
           <DrawerHeader className="shrink-0 pb-2">
             <DrawerTitle>{title}</DrawerTitle>
-            <DrawerDescription className="sr-only">Log income, expense, asset, or a loan.</DrawerDescription>
+            <DrawerDescription className="sr-only">{t('add.srDescription')}</DrawerDescription>
           </DrawerHeader>
           <div className="flex min-h-0 flex-1 flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <AddBody onSuccess={close} mode={mode} setMode={setMode} />
@@ -89,7 +92,7 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
       <DialogContent className="flex max-h-[88vh] max-w-md flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="sr-only">Log income, expense, asset, or a loan.</DialogDescription>
+          <DialogDescription className="sr-only">{t('add.srDescription')}</DialogDescription>
         </DialogHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           <AddBody onSuccess={close} mode={mode} setMode={setMode} />

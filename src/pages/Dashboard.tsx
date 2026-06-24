@@ -14,8 +14,10 @@ import { useProfileStore } from '@/store/useProfileStore';
 import { useUiStore } from '@/store/useUiStore';
 import { todayISO, formatCurrency } from '@/lib/formatters';
 import { highestMilestone } from '@/lib/milestones';
+import { useT } from '@/i18n';
 
 export default function Dashboard() {
+  const t = useT();
   const metrics = useNetWorthMetrics();
   const snapshots = useSnapshotStore((s) => s.snapshots);
   const saveSnapshot = useSnapshotStore((s) => s.saveSnapshot);
@@ -46,26 +48,26 @@ export default function Dashboard() {
     const current = highestMilestone(metrics.netWorth);
     if (milestoneReached < 0) { setMilestoneReached(current); return; }
     if (current > milestoneReached) {
-      toast.success('🎉 New milestone!', {
-        description: `You crossed ${formatCurrency(current, currency)} net worth.`,
+      toast.success(t('dashboard.milestoneTitle'), {
+        description: t('dashboard.milestoneDesc', { amount: formatCurrency(current, currency) }),
         duration: 6000,
       });
       setMilestoneReached(current);
     } else if (current < milestoneReached) {
       setMilestoneReached(current); // dropped below — allow re-celebrating later
     }
-  }, [metrics.netWorth, milestoneReached, setMilestoneReached, currency]);
+  }, [metrics.netWorth, milestoneReached, setMilestoneReached, currency, t]);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={name ? `Hello, ${name}` : 'Dashboard'}
-        description="Your complete financial picture, at a glance."
+        title={name ? t('dashboard.greeting', { name }) : t('nav.dashboard')}
+        description={t('dashboard.subtitle')}
         action={
           <AddTransactionDialog
             trigger={
               <Button className="hidden gap-2 md:inline-flex">
-                <Plus className="h-4 w-4" /> Add Entry
+                <Plus className="h-4 w-4" /> {t('common.addEntry')}
               </Button>
             }
           />

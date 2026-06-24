@@ -5,21 +5,25 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { INCOME_CATEGORIES, type Income, type IncomeCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { useT, type TranslationKey } from '@/i18n';
+import { categoryKey } from '@/lib/transactionView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// Validation messages are translation keys, resolved with `t` at render time.
 const schema = z.object({
-  amount: z.number({ error: 'Amount is required' }).positive('Amount must be positive'),
-  date: z.string().min(1, 'Date is required'),
+  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive'),
+  date: z.string().min(1, 'err.dateRequired'),
   category: z.enum(['salary', 'business', 'freelance', 'gift', 'other']),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
 export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: Income }) {
+  const t = useT();
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
@@ -38,10 +42,10 @@ export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; edi
     };
     if (editing) {
       updateTransaction({ ...editing, ...fields });
-      toast.success('Income updated');
+      toast.success(t('toast.incomeUpdated'));
     } else {
       addTransaction({ id: crypto.randomUUID(), type: 'income', createdAt: nowISO(), ...fields });
-      toast.success('Income added');
+      toast.success(t('toast.incomeAdded'));
     }
     onSuccess?.();
   };
@@ -49,33 +53,33 @@ export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; edi
   return (
     <form onSubmit={handleSubmit(onSubmit as never)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="income-amount">Amount</Label>
+        <Label htmlFor="income-amount">{t('form.amount')}</Label>
         <Input id="income-amount" type="number" step="0.01" inputMode="decimal" placeholder="0" {...register('amount', { valueAsNumber: true })} />
-        {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
+        {errors.amount && <p className="text-xs text-destructive">{t(errors.amount.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label>Category</Label>
+        <Label>{t('form.category')}</Label>
         <Select value={watch('category')} onValueChange={(v) => setValue('category', v as IncomeCategory)}>
-          <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t('form.selectCategory')} /></SelectTrigger>
           <SelectContent>
-            {INCOME_CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+            {INCOME_CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{t(categoryKey('income', c.value))}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="income-date">Date</Label>
+        <Label htmlFor="income-date">{t('form.date')}</Label>
         <Input id="income-date" type="date" {...register('date')} />
-        {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
+        {errors.date && <p className="text-xs text-destructive">{t(errors.date.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="income-notes">Notes (optional)</Label>
-        <Textarea id="income-notes" placeholder="e.g. June salary" {...register('notes')} />
+        <Label htmlFor="income-notes">{t('form.notesOptional')}</Label>
+        <Textarea id="income-notes" placeholder={t('form.incomeNotesPlaceholder')} {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Income'}</Button>
+      <Button type="submit" className="w-full">{editing ? t('common.saveChanges') : t('add.addIncome')}</Button>
     </form>
   );
 }

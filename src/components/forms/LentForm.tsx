@@ -5,21 +5,23 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import type { LentLoan } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { useT, type TranslationKey } from '@/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 const schema = z.object({
-  personOrEntity: z.string().min(1, 'Name is required'),
-  amount: z.number({ error: 'Amount is required' }).positive('Amount must be positive'),
-  date: z.string().min(1, 'Date is required'),
+  personOrEntity: z.string().min(1, 'err.nameRequired'),
+  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive'),
+  date: z.string().min(1, 'err.dateRequired'),
   expectedReturnDate: z.string().optional(),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
 export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: LentLoan }) {
+  const t = useT();
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
@@ -39,10 +41,10 @@ export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editi
     };
     if (editing) {
       updateTransaction({ ...editing, ...fields });
-      toast.success('Loan updated');
+      toast.success(t('toast.loanUpdated'));
     } else {
       addTransaction({ id: crypto.randomUUID(), type: 'lent', isSettled: false, createdAt: nowISO(), ...fields });
-      toast.success('Lent loan added');
+      toast.success(t('toast.lentAdded'));
     }
     onSuccess?.();
   };
@@ -50,34 +52,34 @@ export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editi
   return (
     <form onSubmit={handleSubmit(onSubmit as never)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="lent-person">Lent To</Label>
-        <Input id="lent-person" placeholder="e.g. Cousin, Friend" {...register('personOrEntity')} />
-        {errors.personOrEntity && <p className="text-xs text-destructive">{errors.personOrEntity.message}</p>}
+        <Label htmlFor="lent-person">{t('form.lentTo')}</Label>
+        <Input id="lent-person" placeholder={t('form.lentPersonPlaceholder')} {...register('personOrEntity')} />
+        {errors.personOrEntity && <p className="text-xs text-destructive">{t(errors.personOrEntity.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="lent-amount">Amount</Label>
+        <Label htmlFor="lent-amount">{t('form.amount')}</Label>
         <Input id="lent-amount" type="number" step="0.01" inputMode="decimal" placeholder="0" {...register('amount', { valueAsNumber: true })} />
-        {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
+        {errors.amount && <p className="text-xs text-destructive">{t(errors.amount.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="lent-date">Date Lent</Label>
+        <Label htmlFor="lent-date">{t('form.dateLent')}</Label>
         <Input id="lent-date" type="date" {...register('date')} />
-        {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
+        {errors.date && <p className="text-xs text-destructive">{t(errors.date.message as TranslationKey)}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="lent-return">Expected Return (optional)</Label>
+        <Label htmlFor="lent-return">{t('form.expectedReturnOptional')}</Label>
         <Input id="lent-return" type="date" {...register('expectedReturnDate')} />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="lent-notes">Notes (optional)</Label>
-        <Textarea id="lent-notes" placeholder="Details" {...register('notes')} />
+        <Label htmlFor="lent-notes">{t('form.notesOptional')}</Label>
+        <Textarea id="lent-notes" placeholder={t('form.detailsPlaceholder')} {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">{editing ? 'Save Changes' : 'Add Lent Loan'}</Button>
+      <Button type="submit" className="w-full">{editing ? t('common.saveChanges') : t('add.addLent')}</Button>
     </form>
   );
 }

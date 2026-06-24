@@ -8,17 +8,21 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
 import { BackupCard } from '@/components/settings/BackupCard';
+import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useThemeStore, type Palette } from '@/store/useThemeStore';
 import { CURRENCIES, type Currency } from '@/types';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
+// Theme names are proper nouns kept in both languages.
 const THEMES: { value: Palette; label: string; swatch: string }[] = [
   { value: 'classic', label: 'Classic', swatch: 'linear-gradient(135deg, hsl(221 83% 53%), hsl(243 75% 52%))' },
   { value: 'aurora', label: 'Aurora', swatch: 'linear-gradient(135deg, hsl(266 85% 60%), hsl(288 80% 60%) 45%, hsl(196 90% 52%))' },
 ];
 
 export default function Settings() {
+  const t = useT();
   const profile = useProfileStore((s) => s.profile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
   const mode = useThemeStore((s) => s.mode);
@@ -28,25 +32,25 @@ export default function Settings() {
 
   return (
     <div>
-      <PageHeader title="Settings" description="Personalize your tracker. Everything stays on this device." />
+      <PageHeader title={t('nav.settings')} description={t('settings.subtitle')} />
 
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Profile</CardTitle>
+            <CardTitle>{t('settings.profile')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="name">Your name</Label>
+              <Label htmlFor="name">{t('form.yourName')}</Label>
               <Input
                 id="name"
-                placeholder="e.g. Hammad"
+                placeholder={t('form.namePlaceholder')}
                 value={profile.name}
                 onChange={(e) => updateProfile({ name: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Currency</Label>
+              <Label>{t('form.currency')}</Label>
               <Select value={profile.currency} onValueChange={(v) => updateProfile({ currency: v as Currency })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -55,7 +59,7 @@ export default function Settings() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">All amounts across the app use this currency.</p>
+              <p className="text-xs text-muted-foreground">{t('settings.currencyHint')}</p>
             </div>
           </CardContent>
         </Card>
@@ -64,27 +68,34 @@ export default function Settings() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
+            <CardTitle>{t('settings.appearance')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-medium">{t('settings.language')}</p>
+              <LanguageToggle />
+            </div>
+
+            <Separator />
+
             <div className="space-y-2">
-              <p className="text-sm font-medium">Theme</p>
+              <p className="text-sm font-medium">{t('settings.theme')}</p>
               <div className="grid grid-cols-2 gap-3">
-                {THEMES.map((t) => {
-                  const active = palette === t.value;
+                {THEMES.map((th) => {
+                  const active = palette === th.value;
                   return (
                     <button
-                      key={t.value}
+                      key={th.value}
                       type="button"
-                      onClick={() => setPalette(t.value)}
+                      onClick={() => setPalette(th.value)}
                       className={cn(
-                        'relative overflow-hidden rounded-xl border p-3 text-left transition-all active:scale-[0.98]',
+                        'relative overflow-hidden rounded-xl border p-3 text-start transition-all active:scale-[0.98]',
                         active ? 'border-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'border-input hover:bg-accent'
                       )}
                     >
-                      <div className="h-14 w-full rounded-lg shadow-sm" style={{ backgroundImage: t.swatch }} />
+                      <div className="h-14 w-full rounded-lg shadow-sm" style={{ backgroundImage: th.swatch }} />
                       <div className="mt-2 flex items-center justify-between">
-                        <span className="text-sm font-medium">{t.label}</span>
+                        <span className="text-sm font-medium">{th.label}</span>
                         {active && <Check className="h-4 w-4 text-primary" />}
                       </div>
                     </button>
@@ -97,12 +108,12 @@ export default function Settings() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">Dark mode</p>
-                <p className="text-xs text-muted-foreground">{mode === 'dark' ? 'On' : 'Off'}</p>
+                <p className="text-sm font-medium">{t('settings.darkMode')}</p>
+                <p className="text-xs text-muted-foreground">{mode === 'dark' ? t('common.on') : t('common.off')}</p>
               </div>
               <Button variant="outline" onClick={toggleMode} className="gap-2">
                 {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                {mode === 'dark' ? 'Switch to light' : 'Switch to dark'}
+                {mode === 'dark' ? t('settings.switchLight') : t('settings.switchDark')}
               </Button>
             </div>
           </CardContent>
@@ -114,9 +125,9 @@ export default function Settings() {
           <CardContent className="flex items-start gap-3 p-4">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[hsl(var(--success))]" />
             <div>
-              <p className="text-sm font-medium">Private by design</p>
+              <p className="text-sm font-medium">{t('settings.privacyTitle')}</p>
               <p className="text-xs text-muted-foreground">
-                No accounts, no servers. Your data lives only in this browser’s local storage and works fully offline.
+                {t('settings.privacyDesc')}
               </p>
             </div>
           </CardContent>

@@ -1,5 +1,6 @@
 import { Delete } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
 interface NumberPadProps {
   /** Called with the key pressed: '0'-'9', '.', or 'del'. */
@@ -10,6 +11,7 @@ const KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', 'del'];
 
 /** A native-feeling numeric keypad for fast amount entry on mobile. */
 export function NumberPad({ onKey }: NumberPadProps) {
+  const t = useT();
   return (
     <div className="grid grid-cols-3 gap-2">
       {KEYS.map((k) => (
@@ -17,7 +19,7 @@ export function NumberPad({ onKey }: NumberPadProps) {
           key={k}
           type="button"
           onClick={() => onKey(k)}
-          aria-label={k === 'del' ? 'Delete' : k}
+          aria-label={k === 'del' ? t('common.delete') : k}
           className={cn(
             'flex h-14 items-center justify-center rounded-xl bg-secondary text-xl font-semibold text-secondary-foreground transition-transform active:scale-95 active:bg-accent',
           )}

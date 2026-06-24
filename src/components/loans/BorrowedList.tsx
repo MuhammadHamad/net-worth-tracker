@@ -3,9 +3,11 @@ import type { BorrowedLoan } from '@/types';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useT } from '@/i18n';
 import { LoanRow } from './LoanRow';
 
 export function BorrowedList() {
+  const t = useT();
   const transactions = useTransactionStore((s) => s.transactions);
   const { format } = useCurrency();
 
@@ -20,24 +22,24 @@ export function BorrowedList() {
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
-        <CardTitle className="truncate">Money I Owe</CardTitle>
+        <CardTitle className="truncate">{t('loans.iOwe')}</CardTitle>
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-destructive">{format(totalOwed)}</span>
       </CardHeader>
       <CardContent>
         {borrowed.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">Nothing borrowed. You’re debt-free here.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t('loans.borrowedEmpty')}</p>
         ) : (
           <div className="space-y-4">
             {active.length > 0 && (
               <div className="divide-y">
-                {active.map((l) => <LoanRow key={l.id} loan={l} settleLabel="Mark Settled" />)}
+                {active.map((l) => <LoanRow key={l.id} loan={l} settleLabel={t('loans.markSettled')} />)}
               </div>
             )}
             {settled.length > 0 && (
               <div>
-                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Settled</p>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('common.settled')}</p>
                 <div className="divide-y opacity-70">
-                  {settled.map((l) => <LoanRow key={l.id} loan={l} settleLabel="Mark Settled" />)}
+                  {settled.map((l) => <LoanRow key={l.id} loan={l} settleLabel={t('loans.markSettled')} />)}
                 </div>
               </div>
             )}
