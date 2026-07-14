@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { INCOME_CATEGORIES, type Income, type IncomeCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { MAX_AMOUNT } from '@/lib/amount';
 import { useT, type TranslationKey } from '@/i18n';
 import { categoryKey } from '@/lib/transactionView';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 // Validation messages are translation keys, resolved with `t` at render time.
 const schema = z.object({
-  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive'),
+  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive').max(MAX_AMOUNT, 'err.amountTooLarge'),
   date: z.string().min(1, 'err.dateRequired'),
   category: z.enum(['salary', 'business', 'freelance', 'gift', 'other']),
   notes: z.string().optional(),

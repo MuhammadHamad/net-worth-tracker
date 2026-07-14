@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Moon, Sun, ShieldCheck, Check } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { useProfileStore } from '@/store/useProfileStore';
 import { useThemeStore, type Palette } from '@/store/useThemeStore';
 import { CURRENCIES, type Currency } from '@/types';
 import { cn } from '@/lib/utils';
+import { sanitizeAmount } from '@/lib/amount';
 import { useT } from '@/i18n';
 
 // Theme names are proper nouns kept in both languages.
@@ -29,6 +31,15 @@ export default function Settings() {
   const toggleMode = useThemeStore((s) => s.toggleMode);
   const palette = useThemeStore((s) => s.palette);
   const setPalette = useThemeStore((s) => s.setPalette);
+
+  const symbol = CURRENCIES.find((c) => c.value === profile.currency)?.symbol ?? '';
+  const [cashInput, setCashInput] = useState(profile.openingCash ? String(profile.openingCash) : '');
+  const onCashChange = (raw: string) => {
+    setCashInput(raw);
+    if (raw.trim() === '') { updateProfile({ openingCash: 0 }); return; }
+    const n = sanitizeAmount(raw);
+    if (n !== null) updateProfile({ openingCash: n });
+  };
 
   return (
     <div>
@@ -60,6 +71,23 @@ export default function Settings() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">{t('settings.currencyHint')}</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="opening-cash">{t('settings.startingCash')}</Label>
+              <div className="relative">
+                <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{symbol}</span>
+                <Input
+                  id="opening-cash"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  placeholder="0"
+                  className="ps-8"
+                  value={cashInput}
+                  onChange={(e) => onCashChange(e.target.value)}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">{t('settings.startingCashHint')}</p>
             </div>
           </CardContent>
         </Card>

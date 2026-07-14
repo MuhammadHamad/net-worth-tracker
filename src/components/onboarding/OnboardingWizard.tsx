@@ -7,6 +7,7 @@ import { useUiStore } from '@/store/useUiStore';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { CURRENCIES, type Asset, type AssetCategory, type Currency } from '@/types';
 import { todayISO, nowISO, formatCurrency } from '@/lib/formatters';
+import { sanitizeAmount } from '@/lib/amount';
 import { useT, type TranslationKey } from '@/i18n';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,13 +37,17 @@ export function OnboardingWizard() {
   const [currency, setCurrency] = useState<Currency>(profile.currency);
   const [amounts, setAmounts] = useState<Record<string, string>>({});
 
-  const total = STARTING_ITEMS.reduce((sum, it) => sum + (parseFloat(amounts[it.key]) || 0), 0);
+  const total = STARTING_ITEMS.reduce((sum, it) => sum + (sanitizeAmount(amounts[it.key]) ?? 0), 0);
 
   const finish = () => {
-    updateProfile({ name: name.trim(), currency });
+    // "Cash" is the opening cash balance, not an asset — counting it once avoids the
+    // double-count with income that would otherwise inflate net worth.
+    const openingCash = sanitizeAmount(amounts['cash']) ?? 0;
+    updateProfile({ name: name.trim(), currency, openingCash });
     for (const it of STARTING_ITEMS) {
-      const value = parseFloat(amounts[it.key]) || 0;
-      if (value > 0) {
+      if (it.key === 'cash') continue;
+      const value = sanitizeAmount(amounts[it.key]);
+      if (value !== null) {
         addTransaction({
           id: crypto.randomUUID(), type: 'asset', name: t(it.labelKey), estimatedValue: value,
           category: it.category, dateAdded: todayISO(), createdAt: nowISO(),

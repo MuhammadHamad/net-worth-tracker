@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { EXPENSE_CATEGORIES, type Expense, type ExpenseCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { MAX_AMOUNT } from '@/lib/amount';
 import { useT, type TranslationKey } from '@/i18n';
 import { categoryKey } from '@/lib/transactionView';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const schema = z.object({
-  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive'),
+  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive').max(MAX_AMOUNT, 'err.amountTooLarge'),
   date: z.string().min(1, 'err.dateRequired'),
   category: z.enum(['food', 'transport', 'bills', 'shopping', 'health', 'entertainment', 'other']),
   notes: z.string().optional(),

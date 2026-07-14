@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Archive, Download, Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import { downloadBackup, parseBackup, restoreBackup, type BackupFile } from '@/lib/backup';
+import { downloadBackup, parseBackup, restoreBackup, type ParsedBackup } from '@/lib/backup';
 import { formatDate } from '@/lib/formatters';
 import { useT } from '@/i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import {
 export function BackupCard() {
   const t = useT();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [pending, setPending] = useState<BackupFile | null>(null);
+  const [pending, setPending] = useState<ParsedBackup | null>(null);
 
   const onExport = () => {
     downloadBackup();
@@ -34,13 +34,15 @@ export function BackupCard() {
 
   const onConfirm = () => {
     if (!pending) return;
-    restoreBackup(pending);
+    restoreBackup(pending.backup);
+    const skipped = pending.skipped;
     setPending(null);
     toast.success(t('toast.backupRestored'));
+    if (skipped > 0) toast.warning(t('backup.skipped', { count: skipped }));
   };
 
-  const count = pending?.data.transactions.length ?? 0;
-  const dateLabel = pending?.exportedAt ? formatDate(pending.exportedAt.slice(0, 10)) : null;
+  const count = pending?.backup.data.transactions.length ?? 0;
+  const dateLabel = pending?.backup.exportedAt ? formatDate(pending.backup.exportedAt.slice(0, 10)) : null;
 
   return (
     <Card>

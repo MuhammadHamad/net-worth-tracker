@@ -10,6 +10,7 @@ import {
   type Income, type Expense, type ExpenseCategory, type IncomeCategory,
 } from '@/types';
 import { todayISO, nowISO, formatDate } from '@/lib/formatters';
+import { sanitizeAmount } from '@/lib/amount';
 import { cn } from '@/lib/utils';
 import { useT } from '@/i18n';
 import { categoryKey } from '@/lib/transactionView';
@@ -46,12 +47,12 @@ export function QuickAddForm({ onSuccess, onMore }: { onSuccess: () => void; onM
 
   const cats = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
   const selectedCat = type === 'expense' ? expenseCat : incomeCat;
-  const amountNum = parseFloat(amount) || 0;
-  const canSave = amountNum > 0;
+  const amountNum = sanitizeAmount(amount);
+  const canSave = amountNum !== null;
   const isToday = date === todayISO();
 
   const onSave = () => {
-    if (!canSave) return;
+    if (amountNum === null) return;
     const base = { id: crypto.randomUUID(), amount: amountNum, date, notes: note.trim() || undefined, createdAt: nowISO() };
     if (type === 'expense') {
       addTransaction({ ...base, type: 'expense', category: expenseCat } as Expense);

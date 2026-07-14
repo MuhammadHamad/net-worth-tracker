@@ -4,6 +4,7 @@ import { useSyncStore } from '@/store/useSyncStore';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
+import { validateTransaction, validateSnapshot, validateProfile } from '@/lib/schemas';
 import type { Transaction, NetWorthSnapshot, UserProfile } from '@/types';
 
 type Kind = 'transaction' | 'snapshot' | 'profile';
@@ -57,7 +58,10 @@ function applyRemote(rows: RemoteRow[]) {
         if (byId.delete(row.item_id)) txChanged = true;
         delete tombstones[row.item_id];
       } else {
-        byId.set(row.item_id, row.data as unknown as Transaction);
+        // Validate before trusting: a malformed remote row must not poison local totals.
+        const tx = validateTransaction(row.data);
+        if (!tx) continue;
+        byId.set(row.item_id, tx);
         delete tombstones[row.item_id];
         txChanged = true;
       }
@@ -65,12 +69,16 @@ function applyRemote(rows: RemoteRow[]) {
       const local = snapByDate.get(row.item_id);
       const localClock = local ? snapClock(local) : null;
       if (localClock && localClock >= row.updated_at) continue;
-      if (!row.deleted) { snapByDate.set(row.item_id, row.data as unknown as NetWorthSnapshot); snapChanged = true; }
+      if (!row.deleted) {
+        const snap = validateSnapshot(row.data);
+        if (snap) { snapByDate.set(row.item_id, snap); snapChanged = true; }
+      }
     } else if (row.kind === 'profile') {
       const local = useProfileStore.getState().profile;
       const localClock = local.updatedAt ?? EPOCH;
       if (localClock >= row.updated_at) continue;
-      profilePatch = row.data as unknown as UserProfile;
+      const prof = validateProfile(row.data);
+      if (prof) profilePatch = prof;
     }
   }
 

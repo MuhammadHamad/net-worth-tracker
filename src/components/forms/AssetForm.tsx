@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { ASSET_CATEGORIES, type Asset, type AssetCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { MAX_AMOUNT } from '@/lib/amount';
 import { useT, type TranslationKey } from '@/i18n';
 import { categoryKey } from '@/lib/transactionView';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const schema = z.object({
   name: z.string().min(1, 'err.nameRequired'),
-  estimatedValue: z.number({ error: 'err.valueRequired' }).positive('err.valuePositive'),
+  estimatedValue: z.number({ error: 'err.valueRequired' }).positive('err.valuePositive').max(MAX_AMOUNT, 'err.valueTooLarge'),
   category: z.enum(['vehicle', 'real_estate', 'precious_metals', 'investments', 'savings', 'other']),
   dateAdded: z.string().min(1, 'err.dateRequired'),
   notes: z.string().optional(),

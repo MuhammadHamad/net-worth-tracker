@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import type { LentLoan } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
+import { MAX_AMOUNT } from '@/lib/amount';
 import { useT, type TranslationKey } from '@/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const schema = z.object({
   personOrEntity: z.string().min(1, 'err.nameRequired'),
-  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive'),
+  amount: z.number({ error: 'err.amountRequired' }).positive('err.amountPositive').max(MAX_AMOUNT, 'err.amountTooLarge'),
   date: z.string().min(1, 'err.dateRequired'),
   expectedReturnDate: z.string().optional(),
   notes: z.string().optional(),

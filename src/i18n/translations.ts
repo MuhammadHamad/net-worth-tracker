@@ -177,6 +177,8 @@ export const en = {
   'err.nameRequired': 'Name is required',
   'err.valueRequired': 'Value is required',
   'err.valuePositive': 'Value must be positive',
+  'err.amountTooLarge': 'Amount is too large',
+  'err.valueTooLarge': 'Value is too large',
 
   // ── Edit dialog ────────────────────────────────────────────────────────────
   'edit.income': 'Edit Income',
@@ -242,6 +244,8 @@ export const en = {
   'settings.subtitle': 'Personalize your tracker. Everything stays on this device.',
   'settings.profile': 'Profile',
   'settings.currencyHint': 'All amounts across the app use this currency.',
+  'settings.startingCash': 'Starting cash',
+  'settings.startingCashHint': 'Your cash / bank balance when you started tracking. Income and expenses adjust it from here, and it’s counted once in your net worth.',
   'settings.appearance': 'Appearance',
   'settings.theme': 'Theme',
   'settings.darkMode': 'Dark mode',
@@ -263,6 +267,7 @@ export const en = {
   'backup.entryMany': 'entries',
   'backup.fromDate': ' from {date}',
   'backup.restore': 'Restore',
+  'backup.skipped': 'Skipped {count} invalid record(s) that couldn’t be read.',
 
   // ── Delete confirm ─────────────────────────────────────────────────────────
   'del.title': 'Delete this entry?',
@@ -471,6 +476,8 @@ export const ur: Record<TranslationKey, string> = {
   'err.nameRequired': 'نام درکار ہے',
   'err.valueRequired': 'قدر درکار ہے',
   'err.valuePositive': 'قدر مثبت ہونی چاہیے',
+  'err.amountTooLarge': 'رقم بہت بڑی ہے',
+  'err.valueTooLarge': 'قدر بہت بڑی ہے',
 
   'edit.income': 'آمدنی میں ترمیم',
   'edit.expense': 'اخراجات میں ترمیم',
@@ -531,6 +538,8 @@ export const ur: Record<TranslationKey, string> = {
   'settings.subtitle': 'اپنے ٹریکر کو ذاتی بنائیں۔ سب کچھ اسی ڈیوائس پر رہتا ہے۔',
   'settings.profile': 'پروفائل',
   'settings.currencyHint': 'ایپ میں تمام رقوم اسی کرنسی میں ظاہر ہوں گی۔',
+  'settings.startingCash': 'ابتدائی نقدی',
+  'settings.startingCashHint': 'ٹریکنگ شروع کرتے وقت آپ کے پاس موجود نقدی / بینک بیلنس۔ آمدنی اور اخراجات اسے یہاں سے ایڈجسٹ کرتے ہیں، اور یہ آپ کی مجموعی مالیت میں ایک بار شمار ہوتا ہے۔',
   'settings.appearance': 'ظاہری شکل',
   'settings.theme': 'تھیم',
   'settings.darkMode': 'ڈارک موڈ',
@@ -551,6 +560,7 @@ export const ur: Record<TranslationKey, string> = {
   'backup.entryMany': 'اندراجات',
   'backup.fromDate': ' ({date})',
   'backup.restore': 'بحال کریں',
+  'backup.skipped': '{count} غلط ریکارڈ جو پڑھے نہیں جا سکے، نظر انداز کر دیے گئے۔',
 
   'del.title': 'یہ اندراج حذف کریں؟',
   'del.desc': 'یہ ”{name}“{detail} کو مستقل طور پر ہٹا دے گا۔ اِسے واپس نہیں کیا جا سکتا۔',
