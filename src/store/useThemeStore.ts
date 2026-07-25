@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { safeStorage } from '@/lib/persistStorage';
 
 export type Mode = 'light' | 'dark';
 export type Palette = 'classic' | 'aurora';
@@ -29,6 +30,7 @@ export const useThemeStore = create<ThemeStore>()(
     }),
     {
       name: 'nw_theme',
+      storage: createJSONStorage(() => safeStorage),
       version: 1,
       // Migrate the old { theme: 'light' | 'dark' } shape into { mode, palette }.
       migrate: (persisted: unknown) => {

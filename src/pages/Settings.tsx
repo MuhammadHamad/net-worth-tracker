@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
 import { BackupCard } from '@/components/settings/BackupCard';
+import { DangerZoneCard } from '@/components/settings/DangerZoneCard';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useThemeStore, type Palette } from '@/store/useThemeStore';
@@ -160,6 +161,8 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        <DangerZoneCard />
 
         <Separator />
         <p className="text-center text-xs text-muted-foreground">NetWorth Tracker · MVP</p>

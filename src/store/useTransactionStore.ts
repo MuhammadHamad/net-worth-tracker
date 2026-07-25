@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { safeStorage } from '@/lib/persistStorage';
 import type { Transaction } from '@/types';
 
 /** A deleted record's id → deletion time (ISO). Used to propagate deletes to the cloud. */
@@ -34,6 +35,6 @@ export const useTransactionStore = create<TransactionStore>()(
         ),
       })),
     }),
-    { name: 'nw_transactions' }
+    { name: 'nw_transactions', storage: createJSONStorage(() => safeStorage) }
   )
 );

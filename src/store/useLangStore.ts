@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { safeStorage } from '@/lib/persistStorage';
 
 export type Lang = 'en' | 'ur';
 
@@ -31,6 +32,7 @@ export const useLangStore = create<LangStore>()(
     }),
     {
       name: 'nw_lang',
+      storage: createJSONStorage(() => safeStorage),
       onRehydrateStorage: () => (state) => { if (state) applyLang(state.lang); },
     }
   )

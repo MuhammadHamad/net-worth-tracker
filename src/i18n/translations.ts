@@ -144,6 +144,9 @@ export const en = {
   'toast.backupDownloaded': 'Backup downloaded',
   'toast.backupRestored': 'Backup restored',
   'toast.allSet': 'You’re all set!',
+  'toast.storageWriteFailed': 'Couldn’t save your changes on this device — storage may be full or disabled.',
+  'toast.allDataDeleted': 'All data deleted',
+  'toast.cloudDeleteFailed': 'Data was cleared on this device, but the cloud copy couldn’t be deleted: {error}',
 
   // ── Forms ──────────────────────────────────────────────────────────────────
   'form.amount': 'Amount',
@@ -255,6 +258,11 @@ export const en = {
   'settings.languageHint': 'Choose the app’s language.',
   'settings.privacyTitle': 'Private by design',
   'settings.privacyDesc': 'No accounts, no servers. Your data lives only in this browser’s local storage and works fully offline.',
+  'settings.dangerZone': 'Danger Zone',
+  'settings.deleteAllData': 'Delete All Data',
+  'settings.deleteAllDataDesc': 'Permanently erase every transaction, asset, and loan on this device — and your cloud backup, if you have one.',
+  'settings.deleteAllConfirmTitle': 'Delete all data?',
+  'settings.deleteAllConfirmDesc': 'This permanently erases everything — transactions, assets, loans, and your cloud backup, if any. This can’t be undone.',
 
   // ── Backup ─────────────────────────────────────────────────────────────────
   'backup.title': 'Backup & Restore',
@@ -445,6 +453,9 @@ export const ur: Record<TranslationKey, string> = {
   'toast.backupDownloaded': 'بیک اپ ڈاؤن لوڈ ہو گیا',
   'toast.backupRestored': 'بیک اپ بحال ہو گیا',
   'toast.allSet': 'سب تیار ہے!',
+  'toast.storageWriteFailed': 'آپ کی تبدیلیاں اس ڈیوائس پر محفوظ نہیں ہو سکیں — اسٹوریج بھری یا غیر فعال ہو سکتی ہے۔',
+  'toast.allDataDeleted': 'تمام ڈیٹا حذف ہو گیا',
+  'toast.cloudDeleteFailed': 'اس ڈیوائس پر ڈیٹا صاف ہو گیا، لیکن کلاؤڈ کاپی حذف نہیں ہو سکی: {error}',
 
   'form.amount': 'رقم',
   'form.category': 'زمرہ',
@@ -549,6 +560,11 @@ export const ur: Record<TranslationKey, string> = {
   'settings.languageHint': 'ایپ کی زبان منتخب کریں۔',
   'settings.privacyTitle': 'بنیادی طور پر نجی',
   'settings.privacyDesc': 'کوئی اکاؤنٹ نہیں، کوئی سرور نہیں۔ آپ کا ڈیٹا صرف اسی براؤزر کے لوکل اسٹوریج میں رہتا ہے اور مکمل آف لائن کام کرتا ہے۔',
+  'settings.dangerZone': 'خطرناک زون',
+  'settings.deleteAllData': 'تمام ڈیٹا حذف کریں',
+  'settings.deleteAllDataDesc': 'اس ڈیوائس پر موجود ہر آمدنی، اثاثہ اور قرض مستقل طور پر مٹا دیں — اور آپ کا کلاؤڈ بیک اپ بھی، اگر موجود ہو۔',
+  'settings.deleteAllConfirmTitle': 'تمام ڈیٹا حذف کریں؟',
+  'settings.deleteAllConfirmDesc': 'یہ سب کچھ مستقل طور پر مٹا دے گا — آمدنی، اثاثے، قرضے، اور آپ کا کلاؤڈ بیک اپ، اگر کوئی ہو۔ اِسے واپس نہیں کیا جا سکتا۔',
 
   'backup.title': 'بیک اپ اور بحالی',
   'backup.desc': 'اپنے تمام ڈیٹا کی نقل ڈاؤن لوڈ کریں، یا بیک اپ فائل سے بحال کریں۔ کچھ بھی آپ کی ڈیوائس سے باہر نہیں جاتا۔',
