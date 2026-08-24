@@ -4,33 +4,35 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useNetWorthMetrics } from '@/hooks/useNetWorthMetrics';
 import { useCurrency } from '@/hooks/useCurrency';
 import { cn } from '@/lib/utils';
+import { useT, type TranslationKey } from '@/i18n';
 
 interface MetricItem {
-  label: string;
+  labelKey: TranslationKey;
   value: number;
   icon: LucideIcon;
   tone: 'neutral' | 'positive' | 'negative';
 }
 
 export function SummaryCards() {
+  const t = useT();
   const m = useNetWorthMetrics();
   const { format } = useCurrency();
 
   const items: MetricItem[] = [
-    { label: 'Total Assets', value: m.totalAssets, icon: Wallet, tone: 'positive' },
-    { label: 'Total Debt', value: m.totalDebt, icon: TrendingDown, tone: 'negative' },
-    { label: 'Cash Balance', value: m.cashBalance, icon: Banknote, tone: m.cashBalance >= 0 ? 'positive' : 'negative' },
-    { label: 'Total Income', value: m.totalIncome, icon: ArrowDownCircle, tone: 'neutral' },
-    { label: 'Money Lent', value: m.totalLent, icon: HandCoins, tone: 'neutral' },
+    { labelKey: 'summary.totalAssets', value: m.totalAssets, icon: Wallet, tone: 'positive' },
+    { labelKey: 'summary.totalDebt', value: m.totalDebt, icon: TrendingDown, tone: 'negative' },
+    { labelKey: 'summary.cashBalance', value: m.cashBalance, icon: Banknote, tone: m.cashBalance >= 0 ? 'positive' : 'negative' },
+    { labelKey: 'summary.totalIncome', value: m.totalIncome, icon: ArrowDownCircle, tone: 'neutral' },
+    { labelKey: 'summary.moneyLent', value: m.totalLent, icon: HandCoins, tone: 'neutral' },
   ];
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
       {items.map((item) => (
-        <Card key={item.label}>
+        <Card key={item.labelKey}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
+              <span className="text-xs font-medium text-muted-foreground">{t(item.labelKey)}</span>
               <item.icon
                 className={cn(
                   'h-4 w-4',

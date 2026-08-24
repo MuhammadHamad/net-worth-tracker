@@ -3,11 +3,13 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTransactionView } from '@/lib/transactionView';
 import { formatDate } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 import { RowActionsMenu } from '@/components/shared/RowActionsMenu';
 
 export function TransactionRow({ transaction }: { transaction: Transaction }) {
+  const t = useT();
   const { format } = useCurrency();
-  const v = getTransactionView(transaction);
+  const v = getTransactionView(transaction, t);
   const date = 'date' in transaction ? transaction.date : transaction.dateAdded;
 
   return (

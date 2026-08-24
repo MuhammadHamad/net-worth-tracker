@@ -17,7 +17,6 @@ describe('individual aggregations', () => {
     const txns = [income(100000), income(50000), expense(30000)];
     expect(getTotalIncome(txns)).toBe(150000);
     expect(getTotalExpenses(txns)).toBe(30000);
-    expect(getCashBalance(txns)).toBe(120000);
   });
 
   it('sums asset estimated values', () => {
@@ -29,63 +28,79 @@ describe('individual aggregations', () => {
     expect(getTotalLent(txns)).toBe(20000);
     expect(getTotalBorrowed(txns)).toBe(50000);
   });
+});
 
-  it('returns zero for empty input', () => {
-    expect(getTotalIncome([])).toBe(0);
+describe('getCashBalance', () => {
+  it('is openingCash + income − expenses', () => {
+    expect(getCashBalance([income(100000), expense(30000)])).toBe(70000);
+    expect(getCashBalance([income(100000), expense(30000)], 5000)).toBe(75000);
+  });
+
+  it('drops by money lent out and rises by money borrowed (while unsettled)', () => {
+    // Lending removes cash you're holding; borrowing adds cash you now hold.
+    expect(getCashBalance([lent(20000)], 100000)).toBe(80000);
+    expect(getCashBalance([borrowed(50000)], 100000)).toBe(150000);
+  });
+
+  it('restores cash once a loan is settled', () => {
+    expect(getCashBalance([lent(20000, true)], 100000)).toBe(100000);
+    expect(getCashBalance([borrowed(50000, true)], 100000)).toBe(100000);
+  });
+
+  it('returns openingCash for empty input', () => {
     expect(getCashBalance([])).toBe(0);
-    expect(getTotalAssetValue([])).toBe(0);
+    expect(getCashBalance([], 5000)).toBe(5000);
   });
 });
 
 describe('calculateNetWorth', () => {
-  it('applies the full formula: assets + lent(unsettled) + cash - borrowed(unsettled)', () => {
+  it('net worth = openingCash + income − expenses + assets (loans cancel out)', () => {
     const txns = [income(100000), expense(30000), asset(250000), lent(20000), borrowed(50000)];
-    const m = calculateNetWorth(txns);
-    // cash = 100000 - 30000 = 70000
-    // netWorth = 250000 + 20000 + 70000 - 50000 = 290000
-    expect(m.cashBalance).toBe(70000);
-    expect(m.netWorth).toBe(290000);
+    const m = calculateNetWorth(txns, 0);
+    // cash = 0 + 100000 − 30000 − 20000(lent) + 50000(borrowed) = 100000
+    // netWorth = cash 100000 + assets 250000 + lent 20000 − borrowed 50000 = 320000
+    //          = openingCash 0 + income 100000 − expenses 30000 + assets 250000
+    expect(m.cashBalance).toBe(100000);
+    expect(m.netWorth).toBe(320000);
     expect(m.totalAssets).toBe(250000);
     expect(m.totalDebt).toBe(50000);
     expect(m.totalLent).toBe(20000);
     expect(m.totalBorrowed).toBe(50000);
-    expect(m.totalIncome).toBe(100000);
-    expect(m.totalExpenses).toBe(30000);
   });
 
-  it('settling a loan is net-worth-neutral (cash replaces the receivable/liability)', () => {
-    // Lending then getting it back: the receivable becomes cash — net worth unchanged.
-    const lentActive = calculateNetWorth([lent(20000)]);
-    const lentSettled = calculateNetWorth([lent(20000, true)]);
-    expect(lentActive.netWorth).toBe(20000);
-    expect(lentSettled.netWorth).toBe(20000); // NOT 0 — you still have the money, now as cash
-    expect(lentSettled.cashBalance).toBe(20000);
-
-    // Borrowing then repaying: the debt and the cash cancel — net worth unchanged.
-    const borrowedActive = calculateNetWorth([borrowed(50000)]);
-    const borrowedSettled = calculateNetWorth([borrowed(50000, true)]);
-    expect(borrowedActive.netWorth).toBe(-50000);
-    expect(borrowedSettled.netWorth).toBe(-50000); // NOT 0 — repaying it cost you cash
-    expect(borrowedSettled.cashBalance).toBe(-50000);
+  it('income raises net worth and expenses lower it', () => {
+    expect(calculateNetWorth([income(500)], 5000).netWorth).toBe(5500);
+    expect(calculateNetWorth([income(500), expense(200)], 5000).netWorth).toBe(5300);
   });
 
-  it('can go negative when debts exceed assets and cash', () => {
-    const m = calculateNetWorth([borrowed(100000), income(10000)]);
-    expect(m.netWorth).toBe(10000 - 100000);
+  it('lending, borrowing, and settling never move net worth', () => {
+    const baseline = calculateNetWorth([], 100000).netWorth;
+    expect(baseline).toBe(100000);
+    // Lend money out → cash falls, receivable rises: net worth unchanged.
+    expect(calculateNetWorth([lent(20000)], 100000).netWorth).toBe(100000);
+    // Friend repays (settled) → still unchanged (cash came back).
+    expect(calculateNetWorth([lent(20000, true)], 100000).netWorth).toBe(100000);
+    // Borrow → cash rises, debt rises: net worth unchanged.
+    expect(calculateNetWorth([borrowed(50000)], 100000).netWorth).toBe(100000);
+    // Repay (settled) → still unchanged (debt and cash both gone).
+    expect(calculateNetWorth([borrowed(50000, true)], 100000).netWorth).toBe(100000);
   });
 
   it('deducts from cash balance when asset is paid from cash, preserving total net worth', () => {
     const txns = [income(100000), asset(40000, true)];
     const m = calculateNetWorth(txns);
-    // cash = 100000 - 40000 = 60000
-    // totalAssets = 40000
-    // netWorth = 40000 (asset) + 60000 (cash) = 100000
     expect(m.cashBalance).toBe(60000);
     expect(m.totalAssets).toBe(40000);
     expect(m.netWorth).toBe(100000);
   });
 
-  it('returns all zeros for no transactions', () => {
+  it('goes negative when you borrow and spend it', () => {
+    const m = calculateNetWorth([borrowed(100000), expense(100000)]);
+    expect(m.cashBalance).toBe(0);
+    expect(m.netWorth).toBe(-100000);
+  });
+
+  it('returns all zeros for no transactions and no opening cash', () => {
     expect(calculateNetWorth([])).toEqual({
       netWorth: 0, totalAssets: 0, totalDebt: 0, cashBalance: 0,
       totalIncome: 0, totalExpenses: 0, totalLent: 0, totalBorrowed: 0,

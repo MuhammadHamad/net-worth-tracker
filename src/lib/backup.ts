@@ -2,6 +2,7 @@ import { useTransactionStore } from '@/store/useTransactionStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
 import { nowISO, todayISO } from '@/lib/formatters';
+import { filterValidTransactions, validateSnapshot, validateProfile } from '@/lib/schemas';
 import type { Transaction, UserProfile, NetWorthSnapshot } from '@/types';
 
 const APP_TAG = 'networth-tracker';
@@ -48,8 +49,15 @@ export function downloadBackup() {
   URL.revokeObjectURL(url);
 }
 
-/** Parse + validate backup text, throwing a friendly error on bad input. */
-export function parseBackup(text: string): BackupFile {
+/** A parsed backup plus how many malformed records were dropped during validation. */
+export interface ParsedBackup { backup: BackupFile; skipped: number }
+
+/**
+ * Parse + validate backup text, throwing a friendly error on bad input. Every record is
+ * schema-checked; malformed ones are dropped (not trusted) and counted in `skipped`, so a
+ * corrupt or hand-edited file can never inject NaN/wrong-typed values into the stores.
+ */
+export function parseBackup(text: string): ParsedBackup {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
@@ -61,17 +69,41 @@ export function parseBackup(text: string): BackupFile {
   if (!data || !Array.isArray(data.transactions)) {
     throw new Error('This doesn’t look like a NetWorth backup.');
   }
+
+  const { valid: transactions, skipped: txSkipped } = filterValidTransactions(data.transactions as unknown[]);
+
+  const snapshots: NetWorthSnapshot[] = [];
+  let snapSkipped = 0;
+  if (Array.isArray(data.snapshots)) {
+    for (const s of data.snapshots as unknown[]) {
+      const v = validateSnapshot(s);
+      if (v) snapshots.push(v);
+      else snapSkipped++;
+    }
+  }
+
+  const profile = validateProfile(data.profile) ?? { name: '', currency: 'PKR' };
+  const tombstones = validTombstones(data.tombstones);
+
   return {
-    app: root.app ?? APP_TAG,
-    version: root.version ?? 1,
-    exportedAt: root.exportedAt ?? '',
-    data: {
-      transactions: data.transactions as Transaction[],
-      tombstones: (data.tombstones as Record<string, string>) ?? {},
-      profile: (data.profile as UserProfile) ?? { name: '', currency: 'PKR' },
-      snapshots: Array.isArray(data.snapshots) ? (data.snapshots as NetWorthSnapshot[]) : [],
+    backup: {
+      app: root.app ?? APP_TAG,
+      version: root.version ?? 1,
+      exportedAt: root.exportedAt ?? '',
+      data: { transactions, tombstones, profile, snapshots },
     },
+    skipped: txSkipped + snapSkipped,
   };
+}
+
+/** Keep only string→string entries; anything else is ignored. */
+function validTombstones(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object') return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === 'string') out[k] = v;
+  }
+  return out;
 }
 
 /** Replace all on-device data with the contents of a backup. */

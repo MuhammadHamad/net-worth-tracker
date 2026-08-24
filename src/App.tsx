@@ -6,6 +6,7 @@ import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { WelcomeScreen } from '@/components/auth/WelcomeScreen';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { useThemeStore } from '@/store/useThemeStore';
+import { useLangStore, applyLang } from '@/store/useLangStore';
 import { useUiStore } from '@/store/useUiStore';
 import { useAuthStore, initAuth } from '@/store/useAuthStore';
 import { useTransactionStore } from '@/store/useTransactionStore';
@@ -23,10 +24,12 @@ export default function App() {
   // Apply persisted appearance on first mount (covers the initial paint after rehydration).
   const mode = useThemeStore((s) => s.mode);
   const palette = useThemeStore((s) => s.palette);
+  const lang = useLangStore((s) => s.lang);
   useEffect(() => {
     document.documentElement.classList.toggle('dark', mode === 'dark');
     document.documentElement.setAttribute('data-theme', palette);
-  }, [mode, palette]);
+    applyLang(lang);
+  }, [mode, palette, lang]);
 
   // Start cloud auth + offline-first sync (both no-op unless Supabase is configured).
   useEffect(() => {

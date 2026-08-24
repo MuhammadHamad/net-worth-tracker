@@ -16,40 +16,43 @@ export function getTotalBorrowed(transactions: Transaction[]): number {
 export function getTotalLent(transactions: Transaction[]): number {
   return transactions.filter((t): t is LentLoan => t.type === 'lent' && !t.isSettled).reduce((sum, t) => sum + t.amount, 0);
 }
-// Settled loans represent a completed cash movement: lent money came back to you (cash in),
-// borrowed money was paid back (cash out).
-export function getSettledLentReceived(transactions: Transaction[]): number {
-  return transactions.filter((t): t is LentLoan => t.type === 'lent' && t.isSettled).reduce((sum, t) => sum + t.amount, 0);
-}
-export function getSettledBorrowedRepaid(transactions: Transaction[]): number {
-  return transactions.filter((t): t is BorrowedLoan => t.type === 'borrowed' && t.isSettled).reduce((sum, t) => sum + t.amount, 0);
-}
 export function getAssetCashDeductions(transactions: Transaction[]): number {
   return transactions
     .filter((t): t is Asset => t.type === 'asset' && Boolean(t.isPaidFromCash))
     .reduce((sum, t) => sum + t.estimatedValue, 0);
 }
-export function getCashBalance(transactions: Transaction[]): number {
+
+/**
+ * Cash you actually hold right now:
+ *   openingCash + income − expenses − moneyLentOut(unsettled) + moneyBorrowed(unsettled) − assetCashDeductions
+ *
+ * Lending removes cash until it's repaid; borrowing adds cash you're holding until you
+ * repay it. Settling a loan flips the unsettled term off, restoring cash by the same
+ * amount — so lending, borrowing, and settling are all net-worth-neutral (see below).
+ */
+export function getCashBalance(transactions: Transaction[], openingCash = 0): number {
   return (
+    openingCash +
     getTotalIncome(transactions) -
-    getTotalExpenses(transactions) +
-    getSettledLentReceived(transactions) -
-    getSettledBorrowedRepaid(transactions) -
+    getTotalExpenses(transactions) -
+    getTotalLent(transactions) +
+    getTotalBorrowed(transactions) -
     getAssetCashDeductions(transactions)
   );
 }
-export function calculateNetWorth(transactions: Transaction[]): NetWorthMetrics {
+
+export function calculateNetWorth(transactions: Transaction[], openingCash = 0): NetWorthMetrics {
   const totalIncome = getTotalIncome(transactions);
   const totalExpenses = getTotalExpenses(transactions);
   const totalAssets = getTotalAssetValue(transactions);
   const totalLent = getTotalLent(transactions);
   const totalBorrowed = getTotalBorrowed(transactions);
-  // Cash includes settled-loan movements, so settling a loan is net-worth-neutral:
-  // a lent loan's value shifts from "owed to me" into cash; a borrowed loan's repayment
-  // removes the debt and the cash together.
-  const cashBalance = getCashBalance(transactions);
+  const cashBalance = getCashBalance(transactions, openingCash);
+  // netWorth = cash + assets + lent − borrowed. Substituting cash, the loan terms cancel,
+  // so this equals openingCash + income − expenses + assets: loans never move net worth,
+  // only earning, spending, and asset values do.
   return {
-    netWorth: totalAssets + totalLent + cashBalance - totalBorrowed,
+    netWorth: cashBalance + totalAssets + totalLent - totalBorrowed,
     totalAssets, totalDebt: totalBorrowed, cashBalance, totalIncome, totalExpenses, totalLent, totalBorrowed,
   };
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { safeStorage } from '@/lib/persistStorage';
 
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';
 
@@ -34,6 +35,6 @@ export const useSyncStore = create<SyncStore>()(
       })),
       reset: () => set({ lastPullAt: null, lastPushAt: null, lastSyncedAt: null, status: 'idle', error: null }),
     }),
-    { name: 'nw_sync' }
+    { name: 'nw_sync', storage: createJSONStorage(() => safeStorage) }
   )
 );

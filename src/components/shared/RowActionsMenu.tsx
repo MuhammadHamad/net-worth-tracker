@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import type { Transaction } from '@/types';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { EditTransactionDialog } from '@/components/forms/EditTransactionDialog';
+import { useT } from '@/i18n';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -22,6 +23,7 @@ interface RowActionsMenuProps {
 
 /** Compact "⋯" overflow menu (Edit / Delete) used by list rows and cards — keeps mobile rows uncluttered. */
 export function RowActionsMenu({ transaction, deleteName, deleteDetail }: RowActionsMenuProps) {
+  const t = useT();
   const deleteTransaction = useTransactionStore((s) => s.deleteTransaction);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -33,17 +35,17 @@ export function RowActionsMenu({ transaction, deleteName, deleteDetail }: RowAct
         <DropdownMenuTrigger asChild>
           <button
             className="shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-90"
-            aria-label="More actions"
+            aria-label={t('common.moreActions')}
           >
             <MoreVertical className="h-4 w-4" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-[8rem]">
           <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4" /> Edit
+            <Pencil className="h-4 w-4" /> {t('common.edit')}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setDeleteOpen(true)} className="text-destructive focus:text-destructive">
-            <Trash2 className="h-4 w-4" /> Delete
+            <Trash2 className="h-4 w-4" /> {t('common.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -53,18 +55,18 @@ export function RowActionsMenu({ transaction, deleteName, deleteDetail }: RowAct
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this entry?</AlertDialogTitle>
+            <AlertDialogTitle>{t('del.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove “{deleteName}”{deleteDetail ? ` (${deleteDetail})` : ''}. This can’t be undone.
+              {t('del.desc', { name: deleteName, detail: deleteDetail ? t('del.detail', { detail: deleteDetail }) : '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => { deleteTransaction(transaction.id); toast.success('Entry deleted'); setDeleteOpen(false); }}
+              onClick={() => { deleteTransaction(transaction.id); toast.success(t('toast.entryDeleted')); setDeleteOpen(false); }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

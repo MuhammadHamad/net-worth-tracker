@@ -32,8 +32,10 @@ describe('backup', () => {
     useProfileStore.setState({ profile: { name: '', currency: 'PKR' } });
     useSnapshotStore.setState({ snapshots: [] });
 
-    restoreBackup(parseBackup(text));
+    const { backup, skipped } = parseBackup(text);
+    restoreBackup(backup);
 
+    expect(skipped).toBe(0);
     expect(useTransactionStore.getState().transactions).toHaveLength(1);
     expect(useTransactionStore.getState().tombstones.z).toBeTruthy();
     expect(useProfileStore.getState().profile.currency).toBe('USD');
@@ -44,5 +46,25 @@ describe('backup', () => {
     expect(() => parseBackup('not json')).toThrow();
     expect(() => parseBackup('{"foo":1}')).toThrow();
     expect(() => parseBackup(JSON.stringify({ data: {} }))).toThrow();
+  });
+
+  it('drops malformed records instead of trusting them', () => {
+    const file = JSON.stringify({
+      app: 'networth-tracker', version: 1, exportedAt: '2026-06-01T00:00:00Z',
+      data: {
+        transactions: [
+          income,                                                              // valid
+          { ...income, id: 'bad1', amount: NaN },                              // NaN amount
+          { ...income, id: 'bad2', amount: '1000' },                           // wrong type
+          { id: 'bad3', type: 'income', date: '2026-06-01', category: 'salary', createdAt: 'x' }, // missing amount
+          { ...income, id: 'bad4', type: 'mystery' },                          // unknown type
+        ],
+        snapshots: [snap, { date: '2026-06-02', netWorth: Infinity, totalAssets: 0, totalDebt: 0, cashBalance: 0 }],
+      },
+    });
+    const { backup, skipped } = parseBackup(file);
+    expect(backup.data.transactions).toHaveLength(1); // only the valid income survives
+    expect(backup.data.snapshots).toHaveLength(1);    // Infinity snapshot dropped
+    expect(skipped).toBe(5);                          // 4 bad txns + 1 bad snapshot
   });
 });

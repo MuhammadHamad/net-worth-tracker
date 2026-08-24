@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { safeStorage } from '@/lib/persistStorage';
 import type { ExpenseCategory, IncomeCategory } from '@/types';
 
 interface UiStore {
@@ -33,6 +34,6 @@ export const useUiStore = create<UiStore>()(
       milestoneReached: -1,
       setMilestoneReached: (v) => set({ milestoneReached: v }),
     }),
-    { name: 'nw_ui' }
+    { name: 'nw_ui', storage: createJSONStorage(() => safeStorage) }
   )
 );

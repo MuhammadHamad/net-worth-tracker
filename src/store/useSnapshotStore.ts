@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { safeStorage } from '@/lib/persistStorage';
 import type { NetWorthSnapshot } from '@/types';
 
 interface SnapshotStore {
@@ -22,6 +23,6 @@ export const useSnapshotStore = create<SnapshotStore>()(
         };
       }),
     }),
-    { name: 'nw_snapshots' }
+    { name: 'nw_snapshots', storage: createJSONStorage(() => safeStorage) }
   )
 );

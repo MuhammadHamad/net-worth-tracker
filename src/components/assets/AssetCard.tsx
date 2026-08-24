@@ -1,15 +1,17 @@
 import type { Asset } from '@/types';
 import { Wallet } from 'lucide-react';
-import { ASSET_CATEGORIES } from '@/types';
 import { useCurrency } from '@/hooks/useCurrency';
 import { formatDate } from '@/lib/formatters';
+import { useT } from '@/i18n';
+import { categoryKey } from '@/lib/transactionView';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { RowActionsMenu } from '@/components/shared/RowActionsMenu';
 
 export function AssetCard({ asset }: { asset: Asset }) {
+  const t = useT();
   const { format } = useCurrency();
-  const categoryLabel = ASSET_CATEGORIES.find((c) => c.value === asset.category)?.label ?? asset.category;
+  const categoryLabel = t(categoryKey('asset', asset.category));
 
   return (
     <Card>
@@ -30,9 +32,9 @@ export function AssetCard({ asset }: { asset: Asset }) {
           <RowActionsMenu transaction={asset} deleteName={asset.name} deleteDetail={format(asset.estimatedValue)} />
         </div>
         <div className="mt-4">
-          <p className="text-xs text-muted-foreground">Estimated value</p>
+          <p className="text-xs text-muted-foreground">{t('assets.estValue')}</p>
           <p className="text-xl font-bold tracking-tight">{format(asset.estimatedValue)}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Added {formatDate(asset.dateAdded)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t('assets.added', { date: formatDate(asset.dateAdded) })}</p>
         </div>
       </CardContent>
     </Card>

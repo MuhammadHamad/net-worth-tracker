@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 import { NAV_ITEMS } from './navConfig';
 import { AddTransactionDialog } from '@/components/forms/AddTransactionDialog';
 
 export function MobileNav() {
+  const t = useT();
   // Split nav items around a central Add button: first two on the left, last two on the right.
   const left = NAV_ITEMS.slice(0, 2);
   const right = NAV_ITEMS.slice(2, 4);
@@ -19,7 +21,7 @@ export function MobileNav() {
             <button
               type="button"
               className="flex h-14 w-14 -translate-y-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-90"
-              aria-label="Add entry"
+              aria-label={t('common.addEntry')}
             >
               <Plus className="h-6 w-6" />
             </button>
@@ -32,7 +34,8 @@ export function MobileNav() {
   );
 }
 
-function MobileNavItem({ to, label, icon: Icon }: (typeof NAV_ITEMS)[number]) {
+function MobileNavItem({ to, labelKey, icon: Icon }: (typeof NAV_ITEMS)[number]) {
+  const t = useT();
   return (
     <NavLink
       to={to}
@@ -45,7 +48,7 @@ function MobileNavItem({ to, label, icon: Icon }: (typeof NAV_ITEMS)[number]) {
       }
     >
       <Icon className="h-5 w-5" />
-      {label}
+      {t(labelKey)}
     </NavLink>
   );
 }

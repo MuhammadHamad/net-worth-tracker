@@ -14,7 +14,9 @@ export interface BorrowedLoan { id: string; type: 'borrowed'; personOrEntity: st
 export interface LentLoan { id: string; type: 'lent'; personOrEntity: string; amount: number; date: string; expectedReturnDate?: string; notes?: string; isSettled: boolean; createdAt: string; updatedAt?: string; }
 export type Transaction = Income | Expense | Asset | BorrowedLoan | LentLoan;
 
-export interface UserProfile { name: string; currency: Currency; updatedAt?: string; }
+// `openingCash` is the user's cash/bank balance when they started tracking. Income,
+// expenses, and loans move cash from there; net worth counts it once (never also as an asset).
+export interface UserProfile { name: string; currency: Currency; openingCash?: number; updatedAt?: string; }
 export interface NetWorthSnapshot { date: string; netWorth: number; totalAssets: number; totalDebt: number; cashBalance: number; updatedAt?: string; }
 export interface NetWorthMetrics { netWorth: number; totalAssets: number; totalDebt: number; cashBalance: number; totalIncome: number; totalExpenses: number; totalLent: number; totalBorrowed: number; }
 

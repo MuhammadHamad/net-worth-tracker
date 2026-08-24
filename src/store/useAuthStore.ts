@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { tRaw } from '@/i18n';
 
 interface SignUpResult { error: string | null; needsConfirmation: boolean }
 
@@ -17,10 +18,10 @@ interface AuthStore {
 
 function friendly(message: string): string {
   const m = message.toLowerCase();
-  if (m.includes('invalid login credentials')) return 'Wrong email or password.';
-  if (m.includes('email not confirmed')) return 'Please confirm your email first — check your inbox.';
-  if (m.includes('already registered') || m.includes('already been registered')) return 'That email already has an account — log in instead.';
-  if (m.includes('password should be at least')) return 'Password must be at least 6 characters.';
+  if (m.includes('invalid login credentials')) return tRaw('auth.errWrongCredentials');
+  if (m.includes('email not confirmed')) return tRaw('auth.errNotConfirmed');
+  if (m.includes('already registered') || m.includes('already been registered')) return tRaw('auth.errAlreadyRegistered');
+  if (m.includes('password should be at least')) return tRaw('auth.errPasswordShort');
   return message;
 }
 
@@ -29,7 +30,7 @@ export const useAuthStore = create<AuthStore>(() => ({
   user: null,
   ready: !supabase, // if not configured, there is nothing to wait for
   signUp: async (email, password) => {
-    if (!supabase) return { error: 'Cloud sync is not configured.', needsConfirmation: false };
+    if (!supabase) return { error: tRaw('auth.errNotConfigured'), needsConfirmation: false };
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -40,7 +41,7 @@ export const useAuthStore = create<AuthStore>(() => ({
     return { error: null, needsConfirmation: !data.session };
   },
   signIn: async (email, password) => {
-    if (!supabase) return 'Cloud sync is not configured.';
+    if (!supabase) return tRaw('auth.errNotConfigured');
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return error ? friendly(error.message) : null;
   },

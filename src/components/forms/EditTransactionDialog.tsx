@@ -7,6 +7,7 @@ import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription,
 } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useT, type TranslationKey } from '@/i18n';
 import { IncomeForm } from './IncomeForm';
 import { ExpenseForm } from './ExpenseForm';
 import { AssetForm } from './AssetForm';
@@ -19,12 +20,12 @@ interface EditTransactionDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const TITLES: Record<Transaction['type'], string> = {
-  income: 'Edit Income',
-  expense: 'Edit Expense',
-  asset: 'Edit Asset',
-  borrowed: 'Edit Borrowed Loan',
-  lent: 'Edit Lent Loan',
+const TITLE_KEYS: Record<Transaction['type'], TranslationKey> = {
+  income: 'edit.income',
+  expense: 'edit.expense',
+  asset: 'edit.asset',
+  borrowed: 'edit.borrowed',
+  lent: 'edit.lent',
 };
 
 function EditForm({ transaction, onSuccess }: { transaction: Transaction; onSuccess: () => void }) {
@@ -38,9 +39,10 @@ function EditForm({ transaction, onSuccess }: { transaction: Transaction; onSucc
 }
 
 export function EditTransactionDialog({ transaction, open, onOpenChange }: EditTransactionDialogProps) {
+  const t = useT();
   const isMobile = useIsMobile();
   const close = () => onOpenChange(false);
-  const title = TITLES[transaction.type];
+  const title = t(TITLE_KEYS[transaction.type]);
 
   if (isMobile) {
     return (
@@ -48,7 +50,7 @@ export function EditTransactionDialog({ transaction, open, onOpenChange }: EditT
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>{title}</DrawerTitle>
-            <DrawerDescription>Update the details and save.</DrawerDescription>
+            <DrawerDescription>{t('edit.description')}</DrawerDescription>
           </DrawerHeader>
           <ScrollArea className="max-h-[70svh] px-4 pb-8">
             <EditForm transaction={transaction} onSuccess={close} />
@@ -63,7 +65,7 @@ export function EditTransactionDialog({ transaction, open, onOpenChange }: EditT
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>Update the details and save.</DialogDescription>
+          <DialogDescription>{t('edit.description')}</DialogDescription>
         </DialogHeader>
         <EditForm transaction={transaction} onSuccess={close} />
       </DialogContent>
