@@ -76,8 +76,10 @@ export function CashbookEntryForm({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" /> {t('cashbook.addEntry')}
+          <Button className="gap-1.5 px-3 text-xs sm:text-sm sm:px-4 sm:gap-2">
+            <Plus className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:inline">{t('cashbook.addEntry')}</span>
+            <span className="sm:hidden">{t('common.add') || 'Add'}</span>
           </Button>
         )}
       </DialogTrigger>

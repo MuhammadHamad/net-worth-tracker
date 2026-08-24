@@ -61,65 +61,23 @@ export default function Cashbook() {
       />
 
       {/* Period Filter Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3 shadow-xs">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground">{t('cashbook.period')}:</span>
-          <div className="flex rounded-lg bg-muted p-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setPeriodType('weekly')}
-              className={`rounded-md px-3 py-1 font-medium transition-all ${
-                periodType === 'weekly' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground'
-              }`}
-            >
-              {t('cashbook.weekly')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setPeriodType('monthly')}
-              className={`rounded-md px-3 py-1 font-medium transition-all ${
-                periodType === 'monthly' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground'
-              }`}
-            >
-              {t('cashbook.monthly')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setPeriodType('quarterly')}
-              className={`rounded-md px-3 py-1 font-medium transition-all ${
-                periodType === 'quarterly' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground'
-              }`}
-            >
-              {t('cashbook.quarterly')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setPeriodType('yearly')}
-              className={`rounded-md px-3 py-1 font-medium transition-all ${
-                periodType === 'yearly' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground'
-              }`}
-            >
-              {t('cashbook.yearly')}
-            </button>
-          </div>
-        </div>
-
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-3 shadow-xs">
+        <span className="text-xs font-semibold text-muted-foreground">{t('cashbook.period')}:</span>
         <div className="flex flex-wrap items-center gap-2">
-          {/* Year selector */}
-          <Select value={String(year)} onValueChange={(val) => setYear(parseInt(val, 10))}>
-            <SelectTrigger className="h-8 w-24 text-xs">
+          {/* 1. Time Period Dropdown */}
+          <Select value={periodType} onValueChange={(val) => setPeriodType(val as PeriodType)}>
+            <SelectTrigger className="h-8 w-32 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {availableYears.map((y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ))}
+              <SelectItem value="weekly">{t('cashbook.weekly')}</SelectItem>
+              <SelectItem value="monthly">{t('cashbook.monthly')}</SelectItem>
+              <SelectItem value="quarterly">{t('cashbook.quarterly')}</SelectItem>
+              <SelectItem value="yearly">{t('cashbook.yearly')}</SelectItem>
             </SelectContent>
           </Select>
 
-          {/* Month selector (if monthly) */}
+          {/* 2. Month Selector (if monthly) */}
           {periodType === 'monthly' && (
             <Select value={String(month)} onValueChange={(val) => setMonth(parseInt(val, 10))}>
               <SelectTrigger className="h-8 w-32 text-xs">
@@ -135,10 +93,10 @@ export default function Cashbook() {
             </Select>
           )}
 
-          {/* Quarter selector (if quarterly) */}
+          {/* 2b. Quarter Selector (if quarterly) */}
           {periodType === 'quarterly' && (
             <Select value={String(quarter)} onValueChange={(val) => setQuarter(parseInt(val, 10))}>
-              <SelectTrigger className="h-8 w-24 text-xs">
+              <SelectTrigger className="h-8 w-36 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -149,6 +107,20 @@ export default function Cashbook() {
               </SelectContent>
             </Select>
           )}
+
+          {/* 3. Year Selector */}
+          <Select value={String(year)} onValueChange={(val) => setYear(parseInt(val, 10))}>
+            <SelectTrigger className="h-8 w-24 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

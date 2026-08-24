@@ -332,7 +332,7 @@ export const en = {
   'cat.asset.other': 'Other',
 
   // ── Cashbook ───────────────────────────────────────────────────────────────
-  'cashbook.subtitle': 'Daily income & expense ledger. Does not affect Net Worth.',
+  'cashbook.subtitle': 'Daily income & expense ledger.',
   'cashbook.addEntry': 'Add Cashbook Entry',
   'cashbook.editEntry': 'Edit Cashbook Entry',
   'cashbook.cashIn': 'Cash In',
@@ -663,7 +663,7 @@ export const ur: Record<TranslationKey, string> = {
   'cat.asset.other': 'دیگر',
 
   // ── Cashbook ───────────────────────────────────────────────────────────────
-  'cashbook.subtitle': 'روزمرہ آمدن اور اخراجات کا کھاتہ۔ نیٹ ورتھ پر اثر نہیں پڑتا۔',
+  'cashbook.subtitle': 'روزمرہ آمدن اور اخراجات کا کھاتہ۔',
   'cashbook.addEntry': 'کیش بک اندراج شامل کریں',
   'cashbook.editEntry': 'کیش بک اندراج ترمیم کریں',
   'cashbook.cashIn': 'کیش ان',
