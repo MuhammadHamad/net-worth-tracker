@@ -1,4 +1,4 @@
-import { Cloud, CloudOff, RefreshCw, LogOut, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Cloud, CloudOff, RefreshCw, RotateCcw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -20,8 +20,16 @@ function CloudSyncCardInner() {
   const t = useT();
   const user = useAuthStore((s) => s.user);
   const ready = useAuthStore((s) => s.ready);
-  const signOut = useAuthStore((s) => s.signOut);
   const { status, error, lastSyncedAt } = useSyncStore();
+
+  const handleRestore = async () => {
+    try {
+      await sync();
+      toast.success(t('sync.restoreSuccess'));
+    } catch {
+      toast.error(t('sync.error'));
+    }
+  };
 
   return (
     <Card>
@@ -46,8 +54,8 @@ function CloudSyncCardInner() {
               <Button variant="outline" className="flex-1 gap-2" onClick={() => void sync()} disabled={status === 'syncing'}>
                 <RefreshCw className={status === 'syncing' ? 'h-4 w-4 animate-spin' : 'h-4 w-4'} /> {t('sync.now')}
               </Button>
-              <Button variant="outline" className="gap-2" onClick={async () => { await signOut(); toast.success(t('toast.signedOut')); }}>
-                <LogOut className="h-4 w-4" /> {t('sync.signOut')}
+              <Button variant="outline" className="gap-2" onClick={handleRestore} disabled={status === 'syncing'}>
+                <RotateCcw className="h-4 w-4" /> {t('sync.restore')}
               </Button>
             </div>
           </div>

@@ -62,14 +62,10 @@ export default function Settings() {
         {/* Tab 1: Preferences */}
         <TabsContent value="general" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <User className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle>{t('settings.profile')}</CardTitle>
-                <CardDescription>Manage your name, primary currency, and starting cash</CardDescription>
-              </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" /> {t('settings.profile')}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
@@ -114,14 +110,10 @@ export default function Settings() {
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <PaletteIcon className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle>{t('settings.appearance')}</CardTitle>
-                <CardDescription>Customize themes, language, and dark mode</CardDescription>
-              </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PaletteIcon className="h-5 w-5 text-primary" /> {t('settings.appearance')}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between gap-3">
@@ -178,21 +170,19 @@ export default function Settings() {
           <CloudSyncCard />
 
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <LogOut className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle>Active Session</CardTitle>
-                <CardDescription>Manage active user session and sign out</CardDescription>
-              </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LogOut className="h-5 w-5 text-primary" /> Active Session
+              </CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center justify-between gap-3 pt-1">
-              <div>
-                <p className="text-sm font-medium">Log out of device</p>
-                <p className="text-xs text-muted-foreground">Sign out of your active session</p>
+            <CardContent>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium">Log out of device</p>
+                  <p className="text-xs text-muted-foreground">Sign out of your active session on this device</p>
+                </div>
+                <LogoutButton variant="outline" />
               </div>
-              <LogoutButton variant="outline" />
             </CardContent>
           </Card>
 
