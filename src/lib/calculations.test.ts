@@ -8,7 +8,7 @@ import type { Transaction } from '@/types';
 // Builders keep the test data readable and type-safe.
 const income = (amount: number): Transaction => ({ id: crypto.randomUUID(), type: 'income', amount, date: '2026-06-01', category: 'salary', createdAt: '2026-06-01T00:00:00Z' });
 const expense = (amount: number): Transaction => ({ id: crypto.randomUUID(), type: 'expense', amount, date: '2026-06-01', category: 'food', createdAt: '2026-06-01T00:00:00Z' });
-const asset = (estimatedValue: number): Transaction => ({ id: crypto.randomUUID(), type: 'asset', name: 'Thing', estimatedValue, category: 'savings', dateAdded: '2026-06-01', createdAt: '2026-06-01T00:00:00Z' });
+const asset = (estimatedValue: number, isPaidFromCash = false): Transaction => ({ id: crypto.randomUUID(), type: 'asset', name: 'Thing', estimatedValue, category: 'savings', dateAdded: '2026-06-01', isPaidFromCash, createdAt: '2026-06-01T00:00:00Z' });
 const lent = (amount: number, isSettled = false): Transaction => ({ id: crypto.randomUUID(), type: 'lent', personOrEntity: 'A', amount, date: '2026-06-01', isSettled, createdAt: '2026-06-01T00:00:00Z' });
 const borrowed = (amount: number, isSettled = false): Transaction => ({ id: crypto.randomUUID(), type: 'borrowed', personOrEntity: 'B', amount, date: '2026-06-01', isSettled, createdAt: '2026-06-01T00:00:00Z' });
 
@@ -72,6 +72,17 @@ describe('calculateNetWorth', () => {
   it('can go negative when debts exceed assets and cash', () => {
     const m = calculateNetWorth([borrowed(100000), income(10000)]);
     expect(m.netWorth).toBe(10000 - 100000);
+  });
+
+  it('deducts from cash balance when asset is paid from cash, preserving total net worth', () => {
+    const txns = [income(100000), asset(40000, true)];
+    const m = calculateNetWorth(txns);
+    // cash = 100000 - 40000 = 60000
+    // totalAssets = 40000
+    // netWorth = 40000 (asset) + 60000 (cash) = 100000
+    expect(m.cashBalance).toBe(60000);
+    expect(m.totalAssets).toBe(40000);
+    expect(m.netWorth).toBe(100000);
   });
 
   it('returns all zeros for no transactions', () => {

@@ -36,12 +36,14 @@ export function getTransactionView(t: Transaction): TransactionView {
         title: labelFor(EXPENSE_CATEGORIES, t.category), subtitle: t.notes || 'Expense',
         amount: t.amount, sign: '-', amountClass: 'text-destructive', typeLabel: 'Expense',
       };
-    case 'asset':
+    case 'asset': {
+      const catLabel = labelFor(ASSET_CATEGORIES, t.category);
       return {
         icon: Wallet, iconClass: 'text-primary bg-primary/10',
-        title: t.name, subtitle: labelFor(ASSET_CATEGORIES, t.category),
+        title: t.name, subtitle: t.isPaidFromCash ? `${catLabel} · Paid from cash` : catLabel,
         amount: t.estimatedValue, sign: '+', amountClass: 'text-foreground', typeLabel: 'Asset',
       };
+    }
     case 'lent':
       return {
         icon: HandCoins, iconClass: 'text-amber-600 bg-amber-500/10',

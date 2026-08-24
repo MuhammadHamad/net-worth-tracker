@@ -21,7 +21,10 @@ export function AssetCard({ asset }: { asset: Asset }) {
             </div>
             <div className="min-w-0">
               <p className="truncate font-medium">{asset.name}</p>
-              <Badge variant="secondary" className="mt-1">{categoryLabel}</Badge>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                <Badge variant="secondary">{categoryLabel}</Badge>
+                {asset.isPaidFromCash && <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400">Paid from cash</Badge>}
+              </div>
             </div>
           </div>
           <RowActionsMenu transaction={asset} deleteName={asset.name} deleteDetail={format(asset.estimatedValue)} />

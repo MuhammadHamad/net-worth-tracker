@@ -24,12 +24,18 @@ export function getSettledLentReceived(transactions: Transaction[]): number {
 export function getSettledBorrowedRepaid(transactions: Transaction[]): number {
   return transactions.filter((t): t is BorrowedLoan => t.type === 'borrowed' && t.isSettled).reduce((sum, t) => sum + t.amount, 0);
 }
+export function getAssetCashDeductions(transactions: Transaction[]): number {
+  return transactions
+    .filter((t): t is Asset => t.type === 'asset' && Boolean(t.isPaidFromCash))
+    .reduce((sum, t) => sum + t.estimatedValue, 0);
+}
 export function getCashBalance(transactions: Transaction[]): number {
   return (
     getTotalIncome(transactions) -
     getTotalExpenses(transactions) +
     getSettledLentReceived(transactions) -
-    getSettledBorrowedRepaid(transactions)
+    getSettledBorrowedRepaid(transactions) -
+    getAssetCashDeductions(transactions)
   );
 }
 export function calculateNetWorth(transactions: Transaction[]): NetWorthMetrics {

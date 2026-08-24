@@ -16,6 +16,7 @@ const schema = z.object({
   estimatedValue: z.number({ error: 'Value is required' }).positive('Value must be positive'),
   category: z.enum(['vehicle', 'real_estate', 'precious_metals', 'investments', 'savings', 'other']),
   dateAdded: z.string().min(1, 'Date is required'),
+  isPaidFromCash: z.boolean().optional(),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -26,8 +27,8 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
     defaultValues: editing
-      ? { name: editing.name, estimatedValue: editing.estimatedValue, category: editing.category, dateAdded: editing.dateAdded, notes: editing.notes ?? '' }
-      : { dateAdded: todayISO(), category: 'savings' },
+      ? { name: editing.name, estimatedValue: editing.estimatedValue, category: editing.category, dateAdded: editing.dateAdded, isPaidFromCash: Boolean(editing.isPaidFromCash), notes: editing.notes ?? '' }
+      : { dateAdded: todayISO(), category: 'savings', isPaidFromCash: false },
   });
 
   const onSubmit = (data: FormValues) => {
@@ -36,6 +37,7 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
       estimatedValue: data.estimatedValue,
       category: data.category as AssetCategory,
       dateAdded: data.dateAdded,
+      isPaidFromCash: Boolean(data.isPaidFromCash),
       notes: data.notes?.trim() || undefined,
     };
     if (editing) {
@@ -76,6 +78,23 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
         <Label htmlFor="asset-date">Date Added</Label>
         <Input id="asset-date" type="date" {...register('dateAdded')} />
         {errors.dateAdded && <p className="text-xs text-destructive">{errors.dateAdded.message}</p>}
+      </div>
+
+      <div className="flex items-start gap-2.5 rounded-lg border p-3 bg-muted/30">
+        <input
+          type="checkbox"
+          id="isPaidFromCash"
+          className="mt-0.5 h-4 w-4 rounded border-input text-primary accent-primary"
+          {...register('isPaidFromCash')}
+        />
+        <div className="space-y-0.5">
+          <Label htmlFor="isPaidFromCash" className="cursor-pointer text-sm font-medium">
+            Deduct from cash balance
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            Subtracts this asset's estimated value from your cash balance.
+          </p>
+        </div>
       </div>
 
       <div className="space-y-1.5">

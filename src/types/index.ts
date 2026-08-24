@@ -9,7 +9,7 @@ export type TimeRange = 'week' | 'month' | 'year' | 'all';
 // so data created before sync existed still loads; stores stamp it on every write.
 export interface Income { id: string; type: 'income'; amount: number; date: string; category: IncomeCategory; notes?: string; createdAt: string; updatedAt?: string; }
 export interface Expense { id: string; type: 'expense'; amount: number; date: string; category: ExpenseCategory; notes?: string; createdAt: string; updatedAt?: string; }
-export interface Asset { id: string; type: 'asset'; name: string; estimatedValue: number; category: AssetCategory; dateAdded: string; notes?: string; createdAt: string; updatedAt?: string; }
+export interface Asset { id: string; type: 'asset'; name: string; estimatedValue: number; category: AssetCategory; dateAdded: string; isPaidFromCash?: boolean; notes?: string; createdAt: string; updatedAt?: string; }
 export interface BorrowedLoan { id: string; type: 'borrowed'; personOrEntity: string; amount: number; date: string; dueDate?: string; notes?: string; isSettled: boolean; createdAt: string; updatedAt?: string; }
 export interface LentLoan { id: string; type: 'lent'; personOrEntity: string; amount: number; date: string; expectedReturnDate?: string; notes?: string; isSettled: boolean; createdAt: string; updatedAt?: string; }
 export type Transaction = Income | Expense | Asset | BorrowedLoan | LentLoan;
