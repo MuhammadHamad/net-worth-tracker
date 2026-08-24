@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
 import { LogoutButton } from '@/components/auth/LogoutButton';
-import { BackupCard } from '@/components/settings/BackupCard';
 import { DangerZoneCard } from '@/components/settings/DangerZoneCard';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { useProfileStore } from '@/store/useProfileStore';
@@ -49,14 +48,10 @@ export default function Settings() {
       <PageHeader title={t('nav.settings')} description={t('settings.subtitle')} />
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-xl">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
           <TabsTrigger value="general" className="gap-2">
             <User className="h-4 w-4" />
             <span>{t('settings.tabGeneral')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="data" className="gap-2">
-            <Cloud className="h-4 w-4" />
-            <span>{t('settings.tabData')}</span>
           </TabsTrigger>
           <TabsTrigger value="account" className="gap-2">
             <Shield className="h-4 w-4" />
@@ -178,14 +173,10 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Tab 2: Cloud & Backup */}
-        <TabsContent value="data" className="space-y-4">
-          <CloudSyncCard />
-          <BackupCard />
-        </TabsContent>
-
-        {/* Tab 3: Account & Safety */}
+        {/* Tab 2: Account & Safety */}
         <TabsContent value="account" className="space-y-4">
+          <CloudSyncCard />
+
           <Card>
             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
               <div className="rounded-lg bg-primary/10 p-2 text-primary">

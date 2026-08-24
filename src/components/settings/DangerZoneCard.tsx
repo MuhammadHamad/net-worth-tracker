@@ -32,17 +32,17 @@ export function DangerZoneCard() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">{t('settings.deleteAllDataDesc')}</p>
+        <p className="text-sm text-muted-foreground">{t('settings.deleteAccountDesc')}</p>
         <Button variant="destructive" className="gap-2" onClick={() => setOpen(true)}>
-          <Trash2 className="h-4 w-4" /> {t('settings.deleteAllData')}
+          <Trash2 className="h-4 w-4" /> {t('settings.deleteAccount')}
         </Button>
       </CardContent>
 
       <AlertDialog open={open} onOpenChange={(o) => { if (!busy) setOpen(o); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('settings.deleteAllConfirmTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('settings.deleteAllConfirmDesc')}</AlertDialogDescription>
+            <AlertDialogTitle>{t('settings.deleteAccountConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('settings.deleteAccountConfirmDesc')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={busy}>{t('common.cancel')}</AlertDialogCancel>
@@ -51,7 +51,7 @@ export function DangerZoneCard() {
               disabled={busy}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {busy ? t('common.pleaseWait') : t('settings.deleteAllData')}
+              {busy ? t('common.pleaseWait') : t('settings.deleteAccount')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
