@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Moon, Sun, ShieldCheck, Check } from 'lucide-react';
+import { Moon, Sun, Check, User, Palette as PaletteIcon, Cloud, Shield, LogOut } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { BackupCard } from '@/components/settings/BackupCard';
@@ -44,138 +45,172 @@ export default function Settings() {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader title={t('nav.settings')} description={t('settings.subtitle')} />
 
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('settings.profile')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">{t('form.yourName')}</Label>
-              <Input
-                id="name"
-                placeholder={t('form.namePlaceholder')}
-                value={profile.name}
-                onChange={(e) => updateProfile({ name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t('form.currency')}</Label>
-              <Select value={profile.currency} onValueChange={(v) => updateProfile({ currency: v as Currency })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>{c.symbol} · {c.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">{t('settings.currencyHint')}</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="opening-cash">{t('settings.startingCash')}</Label>
-              <div className="relative">
-                <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{symbol}</span>
+      <Tabs defaultValue="general" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 max-w-xl">
+          <TabsTrigger value="general" className="gap-2">
+            <User className="h-4 w-4" />
+            <span>{t('settings.tabGeneral')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="data" className="gap-2">
+            <Cloud className="h-4 w-4" />
+            <span>{t('settings.tabData')}</span>
+          </TabsTrigger>
+          <TabsTrigger value="account" className="gap-2">
+            <Shield className="h-4 w-4" />
+            <span>{t('settings.tabAccount')}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Tab 1: Preferences */}
+        <TabsContent value="general" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <User className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle>{t('settings.profile')}</CardTitle>
+                <CardDescription>Manage your name, primary currency, and starting cash</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="name">{t('form.yourName')}</Label>
                 <Input
-                  id="opening-cash"
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  placeholder="0"
-                  className="ps-8"
-                  value={cashInput}
-                  onChange={(e) => onCashChange(e.target.value)}
+                  id="name"
+                  placeholder={t('form.namePlaceholder')}
+                  value={profile.name}
+                  onChange={(e) => updateProfile({ name: e.target.value })}
                 />
               </div>
-              <p className="text-xs text-muted-foreground">{t('settings.startingCashHint')}</p>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between gap-3 pt-1">
+              <div className="space-y-1.5">
+                <Label>{t('form.currency')}</Label>
+                <Select value={profile.currency} onValueChange={(v) => updateProfile({ currency: v as Currency })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.symbol} · {c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">{t('settings.currencyHint')}</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="opening-cash">{t('settings.startingCash')}</Label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{symbol}</span>
+                  <Input
+                    id="opening-cash"
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    placeholder="0"
+                    className="ps-8"
+                    value={cashInput}
+                    onChange={(e) => onCashChange(e.target.value)}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">{t('settings.startingCashHint')}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <PaletteIcon className="h-5 w-5" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Session & Account</p>
+                <CardTitle>{t('settings.appearance')}</CardTitle>
+                <CardDescription>Customize themes, language, and dark mode</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-medium">{t('settings.language')}</p>
+                <LanguageToggle />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium">{t('settings.theme')}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {THEMES.map((th) => {
+                    const active = palette === th.value;
+                    return (
+                      <button
+                        key={th.value}
+                        type="button"
+                        onClick={() => setPalette(th.value)}
+                        className={cn(
+                          'relative overflow-hidden rounded-xl border p-3 text-start transition-all active:scale-[0.98]',
+                          active ? 'border-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'border-input hover:bg-accent'
+                        )}
+                      >
+                        <div className="h-14 w-full rounded-lg shadow-sm" style={{ backgroundImage: th.swatch }} />
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-sm font-medium">{th.label}</span>
+                          {active && <Check className="h-4 w-4 text-primary" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">{t('settings.darkMode')}</p>
+                  <p className="text-xs text-muted-foreground">{mode === 'dark' ? t('common.on') : t('common.off')}</p>
+                </div>
+                <Button variant="outline" onClick={toggleMode} className="gap-2">
+                  {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  {mode === 'dark' ? t('settings.switchLight') : t('settings.switchDark')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 2: Cloud & Backup */}
+        <TabsContent value="data" className="space-y-4">
+          <CloudSyncCard />
+          <BackupCard />
+        </TabsContent>
+
+        {/* Tab 3: Account & Safety */}
+        <TabsContent value="account" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <LogOut className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle>Active Session</CardTitle>
+                <CardDescription>Manage active user session and sign out</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between gap-3 pt-1">
+              <div>
+                <p className="text-sm font-medium">Log out of device</p>
                 <p className="text-xs text-muted-foreground">Sign out of your active session</p>
               </div>
               <LogoutButton variant="outline" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <CloudSyncCard />
+          <DangerZoneCard />
+        </TabsContent>
+      </Tabs>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('settings.appearance')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium">{t('settings.language')}</p>
-              <LanguageToggle />
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <p className="text-sm font-medium">{t('settings.theme')}</p>
-              <div className="grid grid-cols-2 gap-3">
-                {THEMES.map((th) => {
-                  const active = palette === th.value;
-                  return (
-                    <button
-                      key={th.value}
-                      type="button"
-                      onClick={() => setPalette(th.value)}
-                      className={cn(
-                        'relative overflow-hidden rounded-xl border p-3 text-start transition-all active:scale-[0.98]',
-                        active ? 'border-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'border-input hover:bg-accent'
-                      )}
-                    >
-                      <div className="h-14 w-full rounded-lg shadow-sm" style={{ backgroundImage: th.swatch }} />
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="text-sm font-medium">{th.label}</span>
-                        {active && <Check className="h-4 w-4 text-primary" />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">{t('settings.darkMode')}</p>
-                <p className="text-xs text-muted-foreground">{mode === 'dark' ? t('common.on') : t('common.off')}</p>
-              </div>
-              <Button variant="outline" onClick={toggleMode} className="gap-2">
-                {mode === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                {mode === 'dark' ? t('settings.switchLight') : t('settings.switchDark')}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <BackupCard />
-
-        <Card>
-          <CardContent className="flex items-start gap-3 p-4">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[hsl(var(--success))]" />
-            <div>
-              <p className="text-sm font-medium">{t('settings.privacyTitle')}</p>
-              <p className="text-xs text-muted-foreground">
-                {t('settings.privacyDesc')}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <DangerZoneCard />
-
-        <Separator />
-        <p className="text-center text-xs text-muted-foreground">NetWorth Tracker · MVP</p>
-      </div>
+      <Separator />
+      <p className="text-center text-xs text-muted-foreground">NetWorth Tracker</p>
     </div>
   );
 }

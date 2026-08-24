@@ -48,9 +48,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t p-3 space-y-2">
+      <div className="border-t p-3">
         <LogoutButton variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive gap-3" />
-        <div className="px-3 text-xs text-muted-foreground">{t('sidebar.privacy')}</div>
       </div>
     </aside>
   );

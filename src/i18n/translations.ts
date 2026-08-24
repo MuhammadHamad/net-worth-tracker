@@ -246,6 +246,9 @@ export const en = {
 
   // ── Settings ───────────────────────────────────────────────────────────────
   'settings.subtitle': 'Personalize your tracker. Everything stays on this device.',
+  'settings.tabGeneral': 'Preferences',
+  'settings.tabData': 'Cloud & Backup',
+  'settings.tabAccount': 'Account & Safety',
   'settings.profile': 'Profile',
   'settings.currencyHint': 'All amounts across the app use this currency.',
   'settings.startingCash': 'Starting cash',
@@ -579,6 +582,9 @@ export const ur: Record<TranslationKey, string> = {
   'sync.syncedAgo': 'سنک ہوا {time}',
 
   'settings.subtitle': 'اپنے ٹریکر کو ذاتی بنائیں۔ سب کچھ اسی ڈیوائس پر رہتا ہے۔',
+  'settings.tabGeneral': 'ترجیحات',
+  'settings.tabData': 'کلاؤڈ و بیک اپ',
+  'settings.tabAccount': 'اکاؤنٹ و حفاظت',
   'settings.profile': 'پروفائل',
   'settings.currencyHint': 'ایپ میں تمام رقوم اسی کرنسی میں ظاہر ہوں گی۔',
   'settings.startingCash': 'ابتدائی نقدی',
