@@ -3,6 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useProfileStore } from '@/store/useProfileStore';
+import { getCashBalance } from '@/lib/calculations';
+import { useCurrency } from '@/hooks/useCurrency';
 import type { LentLoan } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
 import { MAX_AMOUNT } from '@/lib/amount';
@@ -11,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { AlertTriangle } from 'lucide-react';
 
 const schema = z.object({
   personOrEntity: z.string().min(1, 'err.nameRequired'),
@@ -23,16 +27,31 @@ type FormValues = z.infer<typeof schema>;
 
 export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: LentLoan }) {
   const t = useT();
+  const { format } = useCurrency();
+  const transactions = useTransactionStore((s) => s.transactions);
+  const openingCash = useProfileStore((s) => s.profile.openingCash);
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+
+  const currentCash = getCashBalance(transactions, openingCash);
+  const effectiveCash = editing && !editing.isSettled ? currentCash + editing.amount : currentCash;
+
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
     defaultValues: editing
       ? { personOrEntity: editing.personOrEntity, amount: editing.amount, date: editing.date, expectedReturnDate: editing.expectedReturnDate ?? '', notes: editing.notes ?? '' }
       : { date: todayISO() },
   });
 
+  const amountValue = watch('amount');
+  const isInsufficient = Boolean(amountValue && amountValue > effectiveCash);
+
   const onSubmit = (data: FormValues) => {
+    if (data.amount > effectiveCash) {
+      toast.error(t('err.insufficientCash', { available: format(effectiveCash), required: format(data.amount) }));
+      return;
+    }
+
     const fields = {
       personOrEntity: data.personOrEntity.trim(),
       amount: data.amount,
@@ -59,9 +78,17 @@ export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editi
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="lent-amount">{t('form.amount')}</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="lent-amount">{t('form.amount')}</Label>
+          <span className="text-xs text-muted-foreground">Available Cash: {format(effectiveCash)}</span>
+        </div>
         <Input id="lent-amount" type="number" step="0.01" inputMode="decimal" placeholder="0" {...register('amount', { valueAsNumber: true })} />
         {errors.amount && <p className="text-xs text-destructive">{t(errors.amount.message as TranslationKey)}</p>}
+        {isInsufficient && !errors.amount && (
+          <p className="text-xs font-semibold text-destructive flex items-center gap-1 mt-1">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> {t('err.insufficientCashInline', { available: format(effectiveCash) })}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -80,7 +107,7 @@ export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editi
         <Textarea id="lent-notes" placeholder={t('form.detailsPlaceholder')} {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">{editing ? t('common.saveChanges') : t('add.addLent')}</Button>
+      <Button type="submit" className="w-full" disabled={isInsufficient}>{editing ? t('common.saveChanges') : t('add.addLent')}</Button>
     </form>
   );
 }

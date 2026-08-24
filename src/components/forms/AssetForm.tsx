@@ -3,6 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useProfileStore } from '@/store/useProfileStore';
+import { getCashBalance } from '@/lib/calculations';
+import { useCurrency } from '@/hooks/useCurrency';
 import { ASSET_CATEGORIES, type Asset, type AssetCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
 import { MAX_AMOUNT } from '@/lib/amount';
@@ -13,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertTriangle } from 'lucide-react';
 
 const schema = z.object({
   name: z.string().min(1, 'err.nameRequired'),
@@ -26,8 +30,15 @@ type FormValues = z.infer<typeof schema>;
 
 export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: Asset }) {
   const t = useT();
+  const { format } = useCurrency();
+  const transactions = useTransactionStore((s) => s.transactions);
+  const openingCash = useProfileStore((s) => s.profile.openingCash);
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
+
+  const currentCash = getCashBalance(transactions, openingCash);
+  const effectiveCash = editing && editing.isPaidFromCash ? currentCash + editing.estimatedValue : currentCash;
+
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
     defaultValues: editing
@@ -35,7 +46,16 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
       : { dateAdded: todayISO(), category: 'savings', isPaidFromCash: false },
   });
 
+  const estimatedValue = watch('estimatedValue');
+  const isPaidFromCash = watch('isPaidFromCash');
+  const isInsufficient = Boolean(isPaidFromCash && estimatedValue && estimatedValue > effectiveCash);
+
   const onSubmit = (data: FormValues) => {
+    if (data.isPaidFromCash && data.estimatedValue > effectiveCash) {
+      toast.error(t('err.insufficientCash', { available: format(effectiveCash), required: format(data.estimatedValue) }));
+      return;
+    }
+
     const fields = {
       name: data.name.trim(),
       estimatedValue: data.estimatedValue,
@@ -63,9 +83,17 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="asset-value">{t('form.estimatedValue')}</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="asset-value">{t('form.estimatedValue')}</Label>
+          {isPaidFromCash && <span className="text-xs text-muted-foreground">Available Cash: {format(effectiveCash)}</span>}
+        </div>
         <Input id="asset-value" type="number" step="0.01" inputMode="decimal" placeholder="0" {...register('estimatedValue', { valueAsNumber: true })} />
         {errors.estimatedValue && <p className="text-xs text-destructive">{t(errors.estimatedValue.message as TranslationKey)}</p>}
+        {isInsufficient && !errors.estimatedValue && (
+          <p className="text-xs font-semibold text-destructive flex items-center gap-1 mt-1">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> {t('err.insufficientCashInline', { available: format(effectiveCash) })}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -106,7 +134,7 @@ export function AssetForm({ onSuccess, editing }: { onSuccess?: () => void; edit
         <Textarea id="asset-notes" placeholder={t('form.detailsPlaceholder')} {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">{editing ? t('common.saveChanges') : t('add.addAsset')}</Button>
+      <Button type="submit" className="w-full" disabled={isInsufficient}>{editing ? t('common.saveChanges') : t('add.addAsset')}</Button>
     </form>
   );
 }

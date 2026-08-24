@@ -183,6 +183,8 @@ export const en = {
   'err.valuePositive': 'Value must be positive',
   'err.amountTooLarge': 'Amount is too large',
   'err.valueTooLarge': 'Value is too large',
+  'err.insufficientCash': 'Insufficient cash balance! Available: {available}, Required: {required}.',
+  'err.insufficientCashInline': 'Insufficient cash balance (Available: {available})',
 
   // ── Edit dialog ────────────────────────────────────────────────────────────
   'edit.income': 'Edit Income',
@@ -526,6 +528,8 @@ export const ur: Record<TranslationKey, string> = {
   'err.valuePositive': 'قدر مثبت ہونی چاہیے',
   'err.amountTooLarge': 'رقم بہت بڑی ہے',
   'err.valueTooLarge': 'قدر بہت بڑی ہے',
+  'err.insufficientCash': 'غیر کافی کیش بیلنس! دستیاب: {available}، درکار: {required}۔',
+  'err.insufficientCashInline': 'کم کیش بیلنس (دستیاب: {available})',
 
   'edit.income': 'آمدنی میں ترمیم',
   'edit.expense': 'اخراجات میں ترمیم',
