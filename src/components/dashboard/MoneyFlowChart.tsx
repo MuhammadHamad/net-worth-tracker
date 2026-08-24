@@ -34,7 +34,7 @@ export function MoneyFlowChart() {
                 tickFormatter={(v) => compact(Number(v))}
               />
               <Tooltip
-                formatter={(value, name) => [format(Number(value)), name === 'income' ? t('common.income') : t('common.expense')]}
+                formatter={(value, name) => [format(Number(value)), name]}
                 contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8, color: 'hsl(var(--popover-foreground))' }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
