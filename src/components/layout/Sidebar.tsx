@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useT } from '@/i18n';
 import { NAV_ITEMS } from './navConfig';
 import { AddTransactionDialog } from '@/components/forms/AddTransactionDialog';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
@@ -47,7 +48,10 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="px-6 py-4 text-xs text-muted-foreground">{t('sidebar.privacy')}</div>
+      <div className="border-t p-3 space-y-2">
+        <LogoutButton variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive gap-3" />
+        <div className="px-3 text-xs text-muted-foreground">{t('sidebar.privacy')}</div>
+      </div>
     </aside>
   );
 }

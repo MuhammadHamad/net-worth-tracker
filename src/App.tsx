@@ -15,6 +15,7 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { initSync } from '@/lib/sync';
 import Dashboard from '@/pages/Dashboard';
 import Transactions from '@/pages/Transactions';
+import Cashbook from '@/pages/Cashbook';
 import Assets from '@/pages/Assets';
 import Loans from '@/pages/Loans';
 import Settings from '@/pages/Settings';
@@ -65,6 +66,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/cashbook" element={<Cashbook />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/loans" element={<Loans />} />
           <Route path="/settings" element={<Settings />} />

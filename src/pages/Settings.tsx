@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CloudSyncCard } from '@/components/settings/CloudSyncCard';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 import { BackupCard } from '@/components/settings/BackupCard';
 import { DangerZoneCard } from '@/components/settings/DangerZoneCard';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
@@ -89,6 +90,14 @@ export default function Settings() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">{t('settings.startingCashHint')}</p>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <div>
+                <p className="text-sm font-medium">Session & Account</p>
+                <p className="text-xs text-muted-foreground">Sign out of your active session</p>
+              </div>
+              <LogoutButton variant="outline" />
             </div>
           </CardContent>
         </Card>

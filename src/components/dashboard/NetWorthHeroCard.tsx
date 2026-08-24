@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Sparkles, Banknote } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { TrendingUp, TrendingDown, Sparkles, Banknote, ArrowUpRight } from 'lucide-react';
 import { useNetWorthMetrics } from '@/hooks/useNetWorthMetrics';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
@@ -59,18 +60,24 @@ export function NetWorthHeroCard() {
           </div>
         </div>
 
-        {/* Highlighted Cash Balance */}
-        <div className="rounded-xl border border-white/30 bg-white/20 p-4 shadow-sm backdrop-blur-md md:p-5">
-          <div className="flex items-center gap-2 text-sm font-bold text-white">
-            <div className="rounded-md bg-emerald-400/30 p-1 text-emerald-100">
-              <Banknote className="h-4 w-4" />
+        {/* Highlighted Cash Balance (Clickable) */}
+        <Link
+          to="/transactions"
+          className="group block rounded-xl border border-white/30 bg-white/20 p-4 shadow-sm backdrop-blur-md transition-all duration-200 hover:scale-[1.02] hover:bg-white/25 hover:shadow-md active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white md:p-5"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-bold text-white">
+              <div className="rounded-md bg-emerald-400/30 p-1 text-emerald-100 transition-transform duration-200 group-hover:scale-110">
+                <Banknote className="h-4 w-4" />
+              </div>
+              <span>{t('summary.cashBalance')}</span>
             </div>
-            <span>{t('summary.cashBalance')}</span>
+            <ArrowUpRight className="h-4 w-4 text-white/70 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
           </div>
           <div className={cn('mt-2 text-3xl font-extrabold tracking-tight md:text-4xl', cashPositive ? 'text-emerald-100' : 'text-red-200')}>
             {format(metrics.cashBalance)}
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

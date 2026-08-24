@@ -10,6 +10,7 @@ export const en = {
   // ── Navigation ─────────────────────────────────────────────────────────────
   'nav.dashboard': 'Dashboard',
   'nav.transactions': 'Transactions',
+  'nav.cashbook': 'Cashbook',
   'nav.assets': 'Assets',
   'nav.loans': 'Loans',
   'nav.settings': 'Settings',
@@ -322,7 +323,37 @@ export const en = {
   'cat.asset.investments': 'Investments',
   'cat.asset.savings': 'Savings',
   'cat.asset.other': 'Other',
-} as const;
+
+  // ── Cashbook ───────────────────────────────────────────────────────────────
+  'cashbook.subtitle': 'Daily income & expense ledger. Does not affect Net Worth.',
+  'cashbook.addEntry': 'Add Cashbook Entry',
+  'cashbook.editEntry': 'Edit Cashbook Entry',
+  'cashbook.cashIn': 'Cash In',
+  'cashbook.cashOut': 'Cash Out',
+  'cashbook.netFlow': 'Net Cash Flow',
+  'cashbook.period': 'Period',
+  'cashbook.weekly': 'Weekly',
+  'cashbook.monthly': 'Monthly',
+  'cashbook.quarterly': 'Quarterly',
+  'cashbook.yearly': 'Yearly',
+  'cashbook.emptyNone': 'No cashbook entries found for this period.',
+  'cashbook.toastAdded': 'Cashbook entry recorded',
+  'cashbook.toastUpdated': 'Cashbook entry updated',
+  'cashbook.toastDeleted': 'Cashbook entry deleted',
+  'cashbook.cat.food': 'Food & Dining',
+  'cashbook.cat.transport': 'Transport',
+  'cashbook.cat.bills': 'Bills & Utilities',
+  'cashbook.cat.shopping': 'Shopping',
+  'cashbook.cat.groceries': 'Groceries',
+  'cashbook.cat.health': 'Health & Medical',
+  'cashbook.cat.entertainment': 'Entertainment',
+  'cashbook.cat.weekly': 'Weekly / Recurring',
+  'cashbook.cat.salary': 'Salary',
+  'cashbook.cat.freelance': 'Freelance',
+  'cashbook.cat.business': 'Business',
+  'cashbook.cat.gift': 'Gift',
+  'cashbook.cat.other': 'Other',
+};
 
 export type TranslationKey = keyof typeof en;
 
@@ -332,6 +363,7 @@ export const ur: Record<TranslationKey, string> = {
 
   'nav.dashboard': 'ڈیش بورڈ',
   'nav.transactions': 'لین دین',
+  'nav.cashbook': 'کیش بک',
   'nav.assets': 'اثاثے',
   'nav.loans': 'قرض',
   'nav.settings': 'ترتیبات',
@@ -615,6 +647,36 @@ export const ur: Record<TranslationKey, string> = {
   'cat.asset.investments': 'سرمایہ کاری',
   'cat.asset.savings': 'بچت',
   'cat.asset.other': 'دیگر',
+
+  // ── Cashbook ───────────────────────────────────────────────────────────────
+  'cashbook.subtitle': 'روزمرہ آمدن اور اخراجات کا کھاتہ۔ نیٹ ورتھ پر اثر نہیں پڑتا۔',
+  'cashbook.addEntry': 'کیش بک اندراج شامل کریں',
+  'cashbook.editEntry': 'کیش بک اندراج ترمیم کریں',
+  'cashbook.cashIn': 'کیش ان',
+  'cashbook.cashOut': 'کیش آؤٹ',
+  'cashbook.netFlow': 'خالص کیش فلو',
+  'cashbook.period': 'مدت',
+  'cashbook.weekly': 'ہفتہ وار',
+  'cashbook.monthly': 'ماہانہ',
+  'cashbook.quarterly': 'سہ ماہی',
+  'cashbook.yearly': 'سالانہ',
+  'cashbook.emptyNone': 'اس مدت کے لیے کوئی کیش بک اندراجات نہیں ملے۔',
+  'cashbook.toastAdded': 'کیش بک اندراج شامل ہو گیا',
+  'cashbook.toastUpdated': 'کیش بک اندراج اپ ڈیٹ ہو گیا',
+  'cashbook.toastDeleted': 'کیش بک اندراج حذف ہو گیا',
+  'cashbook.cat.food': 'کھانا و کھانے پینا',
+  'cashbook.cat.transport': 'سواری / ٹرانسپورٹ',
+  'cashbook.cat.bills': 'بلز اور افادیت',
+  'cashbook.cat.shopping': 'خریداری',
+  'cashbook.cat.groceries': 'راشن / گروسری',
+  'cashbook.cat.health': 'صحت اور ادویات',
+  'cashbook.cat.entertainment': 'تفریح',
+  'cashbook.cat.weekly': 'ہفتہ وار / باقاعدہ',
+  'cashbook.cat.salary': 'تنخواہ',
+  'cashbook.cat.freelance': 'فری لانس',
+  'cashbook.cat.business': 'کاروبار',
+  'cashbook.cat.gift': 'تحفہ',
+  'cashbook.cat.other': 'دیگر',
 };
 
 export const translations = { en, ur } as const;
