@@ -29,10 +29,12 @@ type FormValues = z.infer<typeof schema>;
 
 export function CashbookEntryForm({
   editing,
+  defaultType = 'cash_out',
   onSuccess,
   trigger,
 }: {
   editing?: CashbookEntry;
+  defaultType?: CashbookEntryType;
   onSuccess?: () => void;
   trigger?: React.ReactNode;
 }) {
@@ -45,7 +47,7 @@ export function CashbookEntryForm({
     resolver: zodResolver(schema) as never,
     defaultValues: editing
       ? { type: editing.type, amount: editing.amount, category: editing.category, date: editing.date, notes: editing.notes ?? '' }
-      : { type: 'cash_out', date: todayISO(), category: 'food' },
+      : { type: defaultType, date: todayISO(), category: defaultType === 'cash_in' ? 'salary' : 'food' },
   });
 
   const selectedType = watch('type');
