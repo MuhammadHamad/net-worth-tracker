@@ -49,13 +49,13 @@ export function CashbookEntryList({ entries }: { entries: CashbookEntry[] }) {
           {paginated.map((entry) => {
             const isIncome = entry.type === 'cash_in';
             return (
-              <div key={entry.id} className="flex items-center justify-between py-3 hover:bg-accent/40 rounded-lg px-2 -mx-2 transition-colors">
+              <div key={entry.id} className="flex items-center justify-between py-3 hover:bg-accent/50 rounded-lg px-2 -mx-2 transition-colors">
                 <div className="flex items-center gap-3">
                   <div
                     className={`rounded-full p-2 ${
                       isIncome
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                        : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
                     }`}
                   >
                     {isIncome ? <ArrowDownCircle className="h-4 w-4" /> : <ArrowUpCircle className="h-4 w-4" />}
@@ -73,8 +73,8 @@ export function CashbookEntryList({ entries }: { entries: CashbookEntry[] }) {
 
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-sm font-black ${
-                      isIncome ? 'text-emerald-800 dark:text-emerald-300' : 'text-rose-800 dark:text-rose-300'
+                    className={`text-base font-extrabold ${
+                      isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                     }`}
                   >
                     {isIncome ? '+' : '-'}{format(entry.amount)}
