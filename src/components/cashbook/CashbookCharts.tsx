@@ -47,7 +47,16 @@ export function CashbookCharts({ entries }: { entries: CashbookEntry[] }) {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(val: any) => format(Number(val) || 0)} />
+              <Tooltip
+                formatter={(val: any) => format(Number(val) || 0)}
+                contentStyle={{
+                  background: 'hsl(var(--popover))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  color: 'hsl(var(--popover-foreground))',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>

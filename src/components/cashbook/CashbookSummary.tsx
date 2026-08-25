@@ -12,34 +12,34 @@ export function CashbookSummary({ metrics }: { metrics: CashbookMetrics }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {/* Cash In */}
-      <Card className="border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-950/20">
+      <Card className="border-emerald-200 bg-emerald-50/80 shadow-xs dark:border-emerald-800/40 dark:bg-emerald-950/30">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
               {t('cashbook.cashIn')}
             </span>
-            <div className="rounded-full bg-emerald-500/20 p-1 text-emerald-600 dark:text-emerald-400">
+            <div className="rounded-full bg-emerald-600 p-1.5 text-white dark:bg-emerald-500">
               <ArrowDownCircle className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 text-xl font-extrabold tracking-tight text-emerald-700 dark:text-emerald-300">
+          <div className="mt-2 text-2xl font-black tracking-tight text-emerald-800 dark:text-emerald-300">
             {format(metrics.totalIn)}
           </div>
         </CardContent>
       </Card>
 
       {/* Cash Out */}
-      <Card className="border-destructive/20 bg-destructive/5 dark:bg-destructive/10">
+      <Card className="border-rose-200 bg-rose-50/80 shadow-xs dark:border-rose-800/40 dark:bg-rose-950/30">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-destructive">
+            <span className="text-xs font-bold uppercase tracking-wider text-rose-900 dark:text-rose-200">
               {t('cashbook.cashOut')}
             </span>
-            <div className="rounded-full bg-destructive/20 p-1 text-destructive">
+            <div className="rounded-full bg-rose-600 p-1.5 text-white dark:bg-rose-500">
               <ArrowUpCircle className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 text-xl font-extrabold tracking-tight text-destructive">
+          <div className="mt-2 text-2xl font-black tracking-tight text-rose-800 dark:text-rose-300">
             {format(metrics.totalOut)}
           </div>
         </CardContent>
@@ -47,21 +47,23 @@ export function CashbookSummary({ metrics }: { metrics: CashbookMetrics }) {
 
       {/* Net Cash Flow */}
       <Card className={cn(
-        'border-primary/20',
-        metrics.netFlow >= 0 ? 'bg-primary/5 dark:bg-primary/10' : 'bg-destructive/5'
+        'shadow-xs',
+        metrics.netFlow >= 0
+          ? 'border-blue-200 bg-blue-50/80 dark:border-slate-800 dark:bg-slate-900/60'
+          : 'border-rose-200 bg-rose-50/80 dark:border-rose-900/40 dark:bg-rose-950/30'
       )}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-200">
               {t('cashbook.netFlow')}
             </span>
-            <div className="rounded-full bg-primary/20 p-1 text-primary">
+            <div className="rounded-full bg-blue-600 p-1.5 text-white dark:bg-blue-500">
               <Scale className="h-4 w-4" />
             </div>
           </div>
           <div className={cn(
-            'mt-2 text-xl font-extrabold tracking-tight',
-            metrics.netFlow >= 0 ? 'text-primary' : 'text-destructive'
+            'mt-2 text-2xl font-black tracking-tight',
+            metrics.netFlow >= 0 ? 'text-blue-800 dark:text-blue-300' : 'text-rose-800 dark:text-rose-300'
           )}>
             {format(metrics.netFlow)}
           </div>

@@ -49,22 +49,22 @@ export function CashbookEntryList({ entries }: { entries: CashbookEntry[] }) {
           {paginated.map((entry) => {
             const isIncome = entry.type === 'cash_in';
             return (
-              <div key={entry.id} className="flex items-center justify-between py-3">
+              <div key={entry.id} className="flex items-center justify-between py-3 hover:bg-accent/40 rounded-lg px-2 -mx-2 transition-colors">
                 <div className="flex items-center gap-3">
                   <div
                     className={`rounded-full p-2 ${
                       isIncome
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-destructive/10 text-destructive'
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                        : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
                     }`}
                   >
                     {isIncome ? <ArrowDownCircle className="h-4 w-4" /> : <ArrowUpCircle className="h-4 w-4" />}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold capitalize">
+                    <p className="text-sm font-bold capitalize text-foreground">
                       {t(`cashbook.cat.${entry.category}` as never)}
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <span>{entry.date}</span>
                       {entry.notes && <span>· {entry.notes}</span>}
                     </div>
@@ -73,8 +73,8 @@ export function CashbookEntryList({ entries }: { entries: CashbookEntry[] }) {
 
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-sm font-bold ${
-                      isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'
+                    className={`text-sm font-black ${
+                      isIncome ? 'text-emerald-800 dark:text-emerald-300' : 'text-rose-800 dark:text-rose-300'
                     }`}
                   >
                     {isIncome ? '+' : '-'}{format(entry.amount)}
