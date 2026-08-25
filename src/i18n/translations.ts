@@ -16,6 +16,8 @@ export const en = {
   'nav.settings': 'Settings',
 
   // ── Common ─────────────────────────────────────────────────────────────────
+  'common.add': 'Add',
+  'common.close': 'Close',
   'common.addEntry': 'Add Entry',
   'common.back': 'Back',
   'common.cancel': 'Cancel',
@@ -375,6 +377,8 @@ export const ur: Record<TranslationKey, string> = {
   'nav.loans': 'قرض',
   'nav.settings': 'ترتیبات',
 
+  'common.add': 'شامل کریں',
+  'common.close': 'بند کریں',
   'common.addEntry': 'اندراج شامل کریں',
   'common.back': 'واپس',
   'common.cancel': 'منسوخ کریں',

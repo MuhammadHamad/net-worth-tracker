@@ -48,6 +48,7 @@ export function CashbookCharts({ entries }: { entries: CashbookEntry[] }) {
                 ))}
               </Pie>
               <Tooltip
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 formatter={(val: any) => format(Number(val) || 0)}
                 contentStyle={{
                   background: 'hsl(var(--popover))',

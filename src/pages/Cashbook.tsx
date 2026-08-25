@@ -19,11 +19,14 @@ export default function Cashbook() {
   const t = useT();
   const entries = useCashbookStore((s) => s.entries);
 
-  const now = new Date();
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const currentMonth = useMemo(() => new Date().getMonth() + 1, []);
+  const currentQuarter = useMemo(() => Math.ceil((new Date().getMonth() + 1) / 3), []);
+
   const [periodType, setPeriodType] = useState<PeriodType>('monthly');
-  const [year, setYear] = useState<number>(now.getFullYear());
-  const [month, setMonth] = useState<number>(now.getMonth() + 1);
-  const [quarter, setQuarter] = useState<number>(Math.ceil((now.getMonth() + 1) / 3));
+  const [year, setYear] = useState<number>(currentYear);
+  const [month, setMonth] = useState<number>(currentMonth);
+  const [quarter, setQuarter] = useState<number>(currentQuarter);
 
   const filter: CashbookPeriodFilter = useMemo(
     () => ({ periodType, year, month, quarter }),
@@ -42,7 +45,7 @@ export default function Cashbook() {
 
   const availableYears = useMemo(() => {
     const yearsSet = new Set<number>();
-    yearsSet.add(now.getFullYear());
+    yearsSet.add(currentYear);
     entries.forEach((e) => {
       if (e.date) {
         const y = parseInt(e.date.split('-')[0], 10);
@@ -50,7 +53,7 @@ export default function Cashbook() {
       }
     });
     return Array.from(yearsSet).sort((a, b) => b - a);
-  }, [entries, now]);
+  }, [entries, currentYear]);
 
   return (
     <div className="space-y-6">

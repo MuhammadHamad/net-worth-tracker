@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Moon, Sun, Check, User, Palette as PaletteIcon, Cloud, Shield, LogOut } from 'lucide-react';
+import { Moon, Sun, Check, User, Palette as PaletteIcon, Shield, LogOut } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

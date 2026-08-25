@@ -4,13 +4,13 @@ import {
   calculateCashbookMetrics,
   getCategoryBreakdown,
 } from './cashbookCalculations';
-import type { CashbookEntry, CashbookPeriodFilter } from '@/types/cashbook';
+import type { CashbookEntry, CashbookPeriodFilter, CashbookCategory } from '@/types/cashbook';
 
 const entry = (
   id: string,
   type: 'cash_in' | 'cash_out',
   amount: number,
-  category: any,
+  category: CashbookCategory,
   date: string
 ): CashbookEntry => ({
   id,
