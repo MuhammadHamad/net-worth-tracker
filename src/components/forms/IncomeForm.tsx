@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { AlertTriangle } from 'lucide-react';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { getCashBalance } from '@/lib/calculations';
@@ -43,11 +44,15 @@ export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; edi
       : { date: todayISO(), category: 'salary' },
   });
 
+  const amountValue = watch('amount');
+  const projectedCash = editing && amountValue ? currentCash - editing.amount + amountValue : currentCash;
+  const isEditingInsufficient = Boolean(editing && amountValue && projectedCash < 0);
+
   const onSubmit = (data: FormValues) => {
     if (editing) {
-      const projectedCash = currentCash - editing.amount + data.amount;
-      if (projectedCash < 0) {
-        toast.error(t('err.negativeIncomeCash', { deficit: format(Math.abs(projectedCash)) }));
+      const projected = currentCash - editing.amount + data.amount;
+      if (projected < 0) {
+        toast.error(t('err.negativeIncomeCash', { deficit: format(Math.abs(projected)) }));
         return;
       }
     }
@@ -74,6 +79,11 @@ export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; edi
         <Label htmlFor="income-amount">{t('form.amount')}</Label>
         <Input id="income-amount" type="number" step="0.01" inputMode="decimal" placeholder="0" {...register('amount', { valueAsNumber: true })} />
         {errors.amount && <p className="text-xs text-destructive">{t(errors.amount.message as TranslationKey)}</p>}
+        {isEditingInsufficient && !errors.amount && (
+          <p className="text-xs font-semibold text-destructive flex items-center gap-1 mt-1">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> {t('err.negativeIncomeCash', { deficit: format(Math.abs(projectedCash)) })}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -97,7 +107,7 @@ export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; edi
         <Textarea id="income-notes" placeholder={t('form.incomeNotesPlaceholder')} {...register('notes')} />
       </div>
 
-      <Button type="submit" className="w-full">{editing ? t('common.saveChanges') : t('add.addIncome')}</Button>
+      <Button type="submit" className="w-full" disabled={isEditingInsufficient}>{editing ? t('common.saveChanges') : t('add.addIncome')}</Button>
     </form>
   );
 }

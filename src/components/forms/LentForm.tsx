@@ -34,7 +34,8 @@ export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editi
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
 
   const currentCash = getCashBalance(transactions, openingCash);
-  const effectiveCash = editing && !editing.isSettled ? currentCash + editing.amount : currentCash;
+  const remainingLocked = editing && !editing.isSettled ? Math.max(0, editing.amount - (editing.repaidAmount || 0)) : 0;
+  const effectiveCash = currentCash + remainingLocked;
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
@@ -60,7 +61,8 @@ export function LentForm({ onSuccess, editing }: { onSuccess?: () => void; editi
       notes: data.notes?.trim() || undefined,
     };
     if (editing) {
-      updateTransaction({ ...editing, ...fields });
+      const isSettled = editing.repaidAmount ? data.amount <= editing.repaidAmount : editing.isSettled;
+      updateTransaction({ ...editing, ...fields, isSettled });
       toast.success(t('toast.loanUpdated'));
     } else {
       addTransaction({ id: crypto.randomUUID(), type: 'lent', isSettled: false, createdAt: nowISO(), ...fields });
