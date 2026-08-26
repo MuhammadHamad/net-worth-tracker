@@ -50,7 +50,7 @@ export function LentList() {
         ) : (
           <div className="space-y-4">
             {pageActive.length > 0 && (
-              <div className="divide-y">
+              <div className="space-y-1">
                 {pageActive.map((l) => <LoanRow key={l.id} loan={l} settleLabel={t('loans.markReceived')} />)}
               </div>
             )}
@@ -59,7 +59,7 @@ export function LentList() {
                 {pageActive.length > 0 && (
                   <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('loans.received')}</p>
                 )}
-                <div className="divide-y opacity-70">
+                <div className="space-y-1 opacity-70">
                   {pageSettled.map((l) => <LoanRow key={l.id} loan={l} settleLabel={t('loans.markReceived')} />)}
                 </div>
               </div>

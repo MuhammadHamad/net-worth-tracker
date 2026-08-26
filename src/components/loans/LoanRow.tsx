@@ -1,113 +1,107 @@
 import { useState } from 'react';
-import { Banknote } from 'lucide-react';
 import type { BorrowedLoan, LentLoan } from '@/types';
 import { useCurrency } from '@/hooks/useCurrency';
-import { formatDate, isOverdue } from '@/lib/formatters';
+import { isOverdue } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
-import { useT } from '@/i18n';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { RowActionsMenu } from '@/components/shared/RowActionsMenu';
-import { RepayLoanDialog } from './RepayLoanDialog';
+import { ChevronRight } from 'lucide-react';
+import { LoanDetailDrawer } from './LoanDetailDrawer';
 
 interface LoanRowProps {
   loan: BorrowedLoan | LentLoan;
-  /** Label for the settle action, e.g. "Mark Settled" or "Mark Received". */
+  /** Label for the settle action (passed through to drawer). */
   settleLabel: string;
 }
 
-export function LoanRow({ loan, settleLabel }: LoanRowProps) {
-  const t = useT();
+/**
+ * Minimal, scannable loan row.
+ * Shows only: name + amount + status indicator.
+ * Tap → detail drawer with full info & actions.
+ */
+export function LoanRow({ loan }: LoanRowProps) {
   const { format } = useCurrency();
-  const [repayOpen, setRepayOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const dueDate = loan.type === 'borrowed' ? loan.dueDate : loan.expectedReturnDate;
+  const isLent = loan.type === 'lent';
+  const dueDate = isLent ? loan.expectedReturnDate : loan.dueDate;
   const overdue = !loan.isSettled && dueDate ? isOverdue(dueDate) : false;
 
   const repaid = loan.repaidAmount || 0;
   const remaining = Math.max(0, loan.amount - repaid);
   const hasPartial = repaid > 0 && !loan.isSettled;
-  const percentPaid = Math.min(100, Math.round((repaid / loan.amount) * 100));
+  const percentPaid = loan.amount > 0 ? Math.min(100, Math.round((repaid / loan.amount) * 100)) : 0;
+
+  const initial = loan.personOrEntity.charAt(0).toUpperCase();
 
   return (
     <>
-      <div className="flex items-center justify-between gap-3 py-3">
-        {/* Left: Entity Name & Metadata */}
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-semibold text-foreground">{loan.personOrEntity}</p>
-            {overdue && <Badge variant="destructive" className="shrink-0 text-[10px] py-0 px-1.5">{t('loans.overdue')}</Badge>}
-            {loan.isSettled && <Badge variant="success" className="shrink-0 text-[10px] py-0 px-1.5">{t('common.settled')}</Badge>}
-          </div>
+      <button
+        type="button"
+        onClick={() => setDrawerOpen(true)}
+        className={cn(
+          'flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all',
+          'hover:bg-accent/50 active:scale-[0.98] cursor-pointer',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+        )}
+      >
+        {/* Avatar initial */}
+        <div
+          className={cn(
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+            loan.isSettled
+              ? 'bg-muted text-muted-foreground'
+              : isLent
+              ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+              : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+          )}
+        >
+          {initial}
+        </div>
 
-          <p className="truncate text-xs text-muted-foreground">
-            {formatDate(loan.date)}
-            {dueDate ? ` · ${t('loans.due', { date: formatDate(dueDate) })}` : ''}
-            {hasPartial && (
-              <>
-                {' · '}
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                  Paid {format(repaid)} ({percentPaid}%)
-                </span>
-              </>
-            )}
+        {/* Name + optional partial progress */}
+        <div className="min-w-0 flex-1">
+          <p className={cn(
+            'truncate text-sm font-semibold',
+            loan.isSettled ? 'text-muted-foreground' : 'text-foreground'
+          )}>
+            {loan.personOrEntity}
           </p>
 
-          {hasPartial && (
-            <div className="h-1 w-24 overflow-hidden rounded-full bg-muted/70 mt-1">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-300"
-                style={{ width: `${percentPaid}%` }}
-              />
-            </div>
-          )}
-
-          {loan.notes && <p className="truncate text-xs text-muted-foreground">{loan.notes}</p>}
-        </div>
-
-        {/* Right: Amount & Actions */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="text-right">
-            <div className={cn('text-sm font-bold', loan.isSettled ? 'text-muted-foreground line-through' : 'text-foreground')}>
-              {format(loan.isSettled ? loan.amount : remaining)}
-            </div>
-            {hasPartial && (
-              <div className="text-[10px] text-muted-foreground">
-                of {format(loan.amount)}
+          {/* Subtle secondary line — only if there's useful context */}
+          {hasPartial ? (
+            <div className="flex items-center gap-2 mt-0.5">
+              <div className="h-1 w-16 overflow-hidden rounded-full bg-muted flex-shrink-0">
+                <div
+                  className="h-full bg-emerald-500 rounded-full"
+                  style={{ width: `${percentPaid}%` }}
+                />
               </div>
-            )}
-          </div>
-
-          {!loan.isSettled && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 px-2.5 sm:px-3 text-xs gap-1.5 shrink-0 border-primary/30 hover:border-primary text-primary hover:bg-primary/5"
-              aria-label={settleLabel}
-              onClick={() => setRepayOpen(true)}
-            >
-              <Banknote className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">
-                {loan.type === 'borrowed' ? t('loans.repay') : t('loans.receive')}
-              </span>
-            </Button>
-          )}
-
-          <RowActionsMenu
-            transaction={loan}
-            deleteName={loan.personOrEntity}
-            deleteDetail={format(loan.amount)}
-          />
+              <span className="text-[11px] text-muted-foreground">{percentPaid}%</span>
+            </div>
+          ) : overdue ? (
+            <div className="flex items-center gap-1 mt-0.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+              <span className="text-[11px] text-destructive font-medium">Overdue</span>
+            </div>
+          ) : null}
         </div>
-      </div>
 
-      {repayOpen && (
-        <RepayLoanDialog
-          loan={loan}
-          open={repayOpen}
-          onOpenChange={setRepayOpen}
-        />
-      )}
+        {/* Amount */}
+        <span className={cn(
+          'shrink-0 text-sm font-bold tabular-nums tracking-tight',
+          loan.isSettled
+            ? 'text-muted-foreground line-through'
+            : isLent
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : 'text-rose-600 dark:text-rose-400'
+        )}>
+          {format(loan.isSettled ? loan.amount : remaining)}
+        </span>
+
+        {/* Chevron hint */}
+        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
+      </button>
+
+      <LoanDetailDrawer loan={loan} open={drawerOpen} onOpenChange={setDrawerOpen} />
     </>
   );
 }
