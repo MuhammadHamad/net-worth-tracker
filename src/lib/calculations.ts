@@ -9,12 +9,16 @@ export function getTotalExpenses(transactions: Transaction[]): number {
 export function getTotalAssetValue(transactions: Transaction[]): number {
   return transactions.filter((t): t is Asset => t.type === 'asset').reduce((sum, t) => sum + t.estimatedValue, 0);
 }
-// Unsettled loans only — these are live receivables / liabilities on the balance sheet.
+// Unsettled loans remaining balance — live receivables / liabilities on the balance sheet.
 export function getTotalBorrowed(transactions: Transaction[]): number {
-  return transactions.filter((t): t is BorrowedLoan => t.type === 'borrowed' && !t.isSettled).reduce((sum, t) => sum + t.amount, 0);
+  return transactions
+    .filter((t): t is BorrowedLoan => t.type === 'borrowed' && !t.isSettled)
+    .reduce((sum, t) => sum + Math.max(0, t.amount - (t.repaidAmount || 0)), 0);
 }
 export function getTotalLent(transactions: Transaction[]): number {
-  return transactions.filter((t): t is LentLoan => t.type === 'lent' && !t.isSettled).reduce((sum, t) => sum + t.amount, 0);
+  return transactions
+    .filter((t): t is LentLoan => t.type === 'lent' && !t.isSettled)
+    .reduce((sum, t) => sum + Math.max(0, t.amount - (t.repaidAmount || 0)), 0);
 }
 export function getAssetCashDeductions(transactions: Transaction[]): number {
   return transactions

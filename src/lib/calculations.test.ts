@@ -23,10 +23,17 @@ describe('individual aggregations', () => {
     expect(getTotalAssetValue([asset(250000), asset(50000)])).toBe(300000);
   });
 
-  it('only counts UNSETTLED loans in lent/borrowed totals', () => {
-    const txns = [lent(20000), lent(5000, true), borrowed(50000), borrowed(10000, true)];
-    expect(getTotalLent(txns)).toBe(20000);
-    expect(getTotalBorrowed(txns)).toBe(50000);
+  it('only counts UNSETTLED loans remaining balance in lent/borrowed totals', () => {
+    const txns = [
+      lent(20000),
+      lent(5000, true),
+      borrowed(50000),
+      borrowed(10000, true),
+      { ...lent(40000), repaidAmount: 15000 },
+      { ...borrowed(30000), repaidAmount: 10000 },
+    ];
+    expect(getTotalLent(txns)).toBe(45000); // 20000 + (40000 - 15000)
+    expect(getTotalBorrowed(txns)).toBe(70000); // 50000 + (30000 - 10000)
   });
 });
 

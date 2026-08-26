@@ -22,6 +22,7 @@ export interface CashbookEntry {
   category: CashbookCategory;
   date: string; // YYYY-MM-DD
   notes?: string;
+  isPostedToNetWorth?: boolean;
   createdAt: string;
   updatedAt?: string;
 }

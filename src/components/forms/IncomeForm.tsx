@@ -3,6 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useProfileStore } from '@/store/useProfileStore';
+import { getCashBalance } from '@/lib/calculations';
+import { useCurrency } from '@/hooks/useCurrency';
 import { INCOME_CATEGORIES, type Income, type IncomeCategory } from '@/types';
 import { todayISO, nowISO } from '@/lib/formatters';
 import { MAX_AMOUNT } from '@/lib/amount';
@@ -25,8 +28,14 @@ type FormValues = z.infer<typeof schema>;
 
 export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; editing?: Income }) {
   const t = useT();
+  const { format } = useCurrency();
+  const transactions = useTransactionStore((s) => s.transactions);
+  const openingCash = useProfileStore((s) => s.profile.openingCash);
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
+
+  const currentCash = getCashBalance(transactions, openingCash);
+
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
     defaultValues: editing
@@ -35,6 +44,14 @@ export function IncomeForm({ onSuccess, editing }: { onSuccess?: () => void; edi
   });
 
   const onSubmit = (data: FormValues) => {
+    if (editing) {
+      const projectedCash = currentCash - editing.amount + data.amount;
+      if (projectedCash < 0) {
+        toast.error(t('err.negativeIncomeCash', { deficit: format(Math.abs(projectedCash)) }));
+        return;
+      }
+    }
+
     const fields = {
       amount: data.amount,
       date: data.date,

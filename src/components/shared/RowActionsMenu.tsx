@@ -3,6 +3,9 @@ import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Transaction } from '@/types';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useProfileStore } from '@/store/useProfileStore';
+import { getCashBalance } from '@/lib/calculations';
+import { useCurrency } from '@/hooks/useCurrency';
 import { EditTransactionDialog } from '@/components/forms/EditTransactionDialog';
 import { useT } from '@/i18n';
 import {
@@ -24,6 +27,7 @@ interface RowActionsMenuProps {
 /** Compact "⋯" overflow menu (Edit / Delete) used by list rows and cards — keeps mobile rows uncluttered. */
 export function RowActionsMenu({ transaction, deleteName, deleteDetail }: RowActionsMenuProps) {
   const t = useT();
+  const { format } = useCurrency();
   const deleteTransaction = useTransactionStore((s) => s.deleteTransaction);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -63,7 +67,22 @@ export function RowActionsMenu({ transaction, deleteName, deleteDetail }: RowAct
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => { deleteTransaction(transaction.id); toast.success(t('toast.entryDeleted')); setDeleteOpen(false); }}
+              onClick={() => {
+                if (transaction.type === 'income') {
+                  const transactions = useTransactionStore.getState().transactions;
+                  const openingCash = useProfileStore.getState().profile.openingCash;
+                  const currentCash = getCashBalance(transactions, openingCash);
+                  const projectedCash = currentCash - transaction.amount;
+                  if (projectedCash < 0) {
+                    toast.error(t('err.negativeIncomeCash', { deficit: format(Math.abs(projectedCash)) }));
+                    setDeleteOpen(false);
+                    return;
+                  }
+                }
+                deleteTransaction(transaction.id);
+                toast.success(t('toast.entryDeleted'));
+                setDeleteOpen(false);
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {t('common.delete')}
