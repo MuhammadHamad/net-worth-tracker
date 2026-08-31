@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useAuthStore';
+import { sync } from '@/lib/sync';
 import { useT } from '@/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,15 +30,17 @@ export function AuthForm({ showIntro = true }: { showIntro?: boolean }) {
     setBusy(true);
     if (mode === 'signup') {
       const { error, needsConfirmation } = await signUp(email.trim(), password);
-      setBusy(false);
-      if (error) { toast.error(error); return; }
-      if (needsConfirmation) { setConfirmSent(true); return; }
+      if (error) { setBusy(false); toast.error(error); return; }
+      if (needsConfirmation) { setBusy(false); setConfirmSent(true); return; }
       toast.success(t('toast.accountCreated'));
+      await sync();
+      setBusy(false);
     } else {
       const error = await signIn(email.trim(), password);
-      setBusy(false);
-      if (error) { toast.error(error); return; }
+      if (error) { setBusy(false); toast.error(error); return; }
       toast.success(t('toast.signedIn'));
+      await sync();
+      setBusy(false);
     }
   };
 

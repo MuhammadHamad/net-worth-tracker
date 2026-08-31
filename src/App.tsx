@@ -50,6 +50,9 @@ export default function App() {
   if (isSupabaseConfigured) {
     if (!ready) return <Splash />;
     if (!user && !authSkipped) return <><WelcomeScreen /><OfflineIndicator /></>;
+    // For an authenticated user on a fresh device/session where sync hasn't completed yet and local is empty,
+    // show splash to prevent flashing an empty dashboard or triggering onboarding prematurely.
+    if (user && !lastSyncedAt && !hasData) return <Splash />;
   }
 
   // First-run setup: only for genuine first-timers (no data yet). For a signed-in

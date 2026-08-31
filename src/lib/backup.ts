@@ -1,9 +1,11 @@
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useCashbookStore } from '@/store/useCashbookStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
 import { nowISO, todayISO } from '@/lib/formatters';
-import { filterValidTransactions, validateSnapshot, validateProfile } from '@/lib/schemas';
+import { filterValidTransactions, filterValidCashbookEntries, validateSnapshot, validateProfile } from '@/lib/schemas';
 import type { Transaction, UserProfile, NetWorthSnapshot } from '@/types';
+import type { CashbookEntry } from '@/types/cashbook';
 
 const APP_TAG = 'networth-tracker';
 
@@ -16,21 +18,26 @@ export interface BackupFile {
     tombstones: Record<string, string>;
     profile: UserProfile;
     snapshots: NetWorthSnapshot[];
+    cashbook?: CashbookEntry[];
+    cashbookTombstones?: Record<string, string>;
   };
 }
 
 /** Snapshot all on-device financial data into a portable object. */
 export function buildBackup(): BackupFile {
   const tx = useTransactionStore.getState();
+  const cb = useCashbookStore.getState();
   return {
     app: APP_TAG,
-    version: 1,
+    version: 2,
     exportedAt: nowISO(),
     data: {
       transactions: tx.transactions,
       tombstones: tx.tombstones,
       profile: useProfileStore.getState().profile,
       snapshots: useSnapshotStore.getState().snapshots,
+      cashbook: cb.entries,
+      cashbookTombstones: cb.tombstones,
     },
   };
 }
@@ -72,6 +79,14 @@ export function parseBackup(text: string): ParsedBackup {
 
   const { valid: transactions, skipped: txSkipped } = filterValidTransactions(data.transactions as unknown[]);
 
+  let cashbook: CashbookEntry[] = [];
+  let cbSkipped = 0;
+  if (Array.isArray(data.cashbook)) {
+    const res = filterValidCashbookEntries(data.cashbook as unknown[]);
+    cashbook = res.valid;
+    cbSkipped = res.skipped;
+  }
+
   const snapshots: NetWorthSnapshot[] = [];
   let snapSkipped = 0;
   if (Array.isArray(data.snapshots)) {
@@ -84,15 +99,16 @@ export function parseBackup(text: string): ParsedBackup {
 
   const profile = validateProfile(data.profile) ?? { name: '', currency: 'PKR' };
   const tombstones = validTombstones(data.tombstones);
+  const cashbookTombstones = validTombstones(data.cashbookTombstones);
 
   return {
     backup: {
       app: root.app ?? APP_TAG,
       version: root.version ?? 1,
       exportedAt: root.exportedAt ?? '',
-      data: { transactions, tombstones, profile, snapshots },
+      data: { transactions, tombstones, profile, snapshots, cashbook, cashbookTombstones },
     },
-    skipped: txSkipped + snapSkipped,
+    skipped: txSkipped + snapSkipped + cbSkipped,
   };
 }
 
@@ -111,4 +127,10 @@ export function restoreBackup(backup: BackupFile) {
   useTransactionStore.setState({ transactions: backup.data.transactions, tombstones: backup.data.tombstones });
   useProfileStore.setState({ profile: backup.data.profile });
   useSnapshotStore.setState({ snapshots: backup.data.snapshots });
+  if (backup.data.cashbook) {
+    useCashbookStore.setState({
+      entries: backup.data.cashbook,
+      tombstones: backup.data.cashbookTombstones ?? {},
+    });
+  }
 }

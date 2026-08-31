@@ -24,6 +24,7 @@ function CloudSyncCardInner() {
 
   const handleRestore = async () => {
     try {
+      useSyncStore.getState().setCursors({ lastPullAt: null });
       await sync();
       toast.success(t('sync.restoreSuccess'));
     } catch {

@@ -2,12 +2,20 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSyncStore } from '@/store/useSyncStore';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useCashbookStore } from '@/store/useCashbookStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useSnapshotStore } from '@/store/useSnapshotStore';
-import { validateTransaction, validateSnapshot, validateProfile } from '@/lib/schemas';
+import { useUiStore } from '@/store/useUiStore';
+import {
+  validateTransaction,
+  validateCashbookEntry,
+  validateSnapshot,
+  validateProfile,
+} from '@/lib/schemas';
 import type { Transaction, NetWorthSnapshot, UserProfile } from '@/types';
+import type { CashbookEntry } from '@/types/cashbook';
 
-export type Kind = 'transaction' | 'snapshot' | 'profile';
+export type Kind = 'transaction' | 'snapshot' | 'profile' | 'cashbook';
 
 interface LocalItem { kind: Kind; item_id: string; data: unknown; deleted: boolean; updatedAt: string }
 export interface RemoteRow { kind: Kind; item_id: string; data: Record<string, unknown>; deleted: boolean; updated_at: string }
@@ -16,6 +24,7 @@ const EPOCH = '1970-01-01T00:00:00.000Z';
 const PROFILE_ID = 'me';
 
 const txClock = (t: Transaction) => t.updatedAt ?? t.createdAt ?? EPOCH;
+const cashClock = (c: CashbookEntry) => c.updatedAt ?? c.createdAt ?? EPOCH;
 const snapClock = (s: NetWorthSnapshot) => s.updatedAt ?? `${s.date}T00:00:00.000Z`;
 
 // ---- gather local state as sync items ---------------------------------------
@@ -24,12 +33,19 @@ function collectLocal(): LocalItem[] {
   const { transactions, tombstones } = useTransactionStore.getState();
   const { snapshots } = useSnapshotStore.getState();
   const { profile } = useProfileStore.getState();
+  const { entries: cashbookEntries, tombstones: cashbookTombstones } = useCashbookStore.getState();
 
   const items: LocalItem[] = [];
   for (const t of transactions) items.push({ kind: 'transaction', item_id: t.id, data: t, deleted: false, updatedAt: txClock(t) });
   for (const [id, at] of Object.entries(tombstones)) items.push({ kind: 'transaction', item_id: id, data: {}, deleted: true, updatedAt: at });
   for (const s of snapshots) items.push({ kind: 'snapshot', item_id: s.date, data: s, deleted: false, updatedAt: snapClock(s) });
-  if (profile.updatedAt) items.push({ kind: 'profile', item_id: PROFILE_ID, data: profile, deleted: false, updatedAt: profile.updatedAt });
+  for (const c of cashbookEntries) items.push({ kind: 'cashbook', item_id: c.id, data: c, deleted: false, updatedAt: cashClock(c) });
+  for (const [id, at] of Object.entries(cashbookTombstones)) items.push({ kind: 'cashbook', item_id: id, data: {}, deleted: true, updatedAt: at });
+
+  // Include user profile whenever configured or updated.
+  const profClock = profile.updatedAt ?? EPOCH;
+  items.push({ kind: 'profile', item_id: PROFILE_ID, data: profile, deleted: false, updatedAt: profClock });
+
   return items;
 }
 
@@ -43,11 +59,17 @@ export function applyRemote(rows: RemoteRow[]) {
   const tombstones = { ...txStore.tombstones };
   let txChanged = false;
 
+  const cbStore = useCashbookStore.getState();
+  const cbById = new Map(cbStore.entries.map((c) => [c.id, c]));
+  const cbTombstones = { ...cbStore.tombstones };
+  let cbChanged = false;
+
   const snapStore = useSnapshotStore.getState();
   const snapByDate = new Map(snapStore.snapshots.map((s) => [s.date, s]));
   let snapChanged = false;
 
   let profilePatch: UserProfile | null = null;
+  let hasValidCloudData = false;
 
   for (const row of rows) {
     if (row.kind === 'transaction') {
@@ -64,6 +86,22 @@ export function applyRemote(rows: RemoteRow[]) {
         byId.set(row.item_id, tx);
         delete tombstones[row.item_id];
         txChanged = true;
+        hasValidCloudData = true;
+      }
+    } else if (row.kind === 'cashbook') {
+      const local = cbById.get(row.item_id);
+      const localClock = local ? cashClock(local) : (cbTombstones[row.item_id] ?? null);
+      if (localClock && localClock >= row.updated_at) continue;
+      if (row.deleted) {
+        if (cbById.delete(row.item_id)) cbChanged = true;
+        delete cbTombstones[row.item_id];
+      } else {
+        const entry = validateCashbookEntry(row.data);
+        if (!entry) continue;
+        cbById.set(row.item_id, entry);
+        delete cbTombstones[row.item_id];
+        cbChanged = true;
+        hasValidCloudData = true;
       }
     } else if (row.kind === 'snapshot') {
       const local = snapByDate.get(row.item_id);
@@ -71,20 +109,35 @@ export function applyRemote(rows: RemoteRow[]) {
       if (localClock && localClock >= row.updated_at) continue;
       if (!row.deleted) {
         const snap = validateSnapshot(row.data);
-        if (snap) { snapByDate.set(row.item_id, snap); snapChanged = true; }
+        if (snap) {
+          snapByDate.set(row.item_id, snap);
+          snapChanged = true;
+          hasValidCloudData = true;
+        }
       }
     } else if (row.kind === 'profile') {
       const local = useProfileStore.getState().profile;
       const localClock = local.updatedAt ?? EPOCH;
       if (localClock >= row.updated_at) continue;
       const prof = validateProfile(row.data);
-      if (prof) profilePatch = prof;
+      if (prof) {
+        profilePatch = prof;
+        if (prof.name || prof.openingCash !== undefined) {
+          hasValidCloudData = true;
+        }
+      }
     }
   }
 
   if (txChanged) useTransactionStore.setState({ transactions: [...byId.values()], tombstones });
+  if (cbChanged) useCashbookStore.setState({ entries: [...cbById.values()], tombstones: cbTombstones });
   if (snapChanged) useSnapshotStore.setState({ snapshots: [...snapByDate.values()] });
   if (profilePatch) useProfileStore.setState({ profile: profilePatch });
+
+  // If we pulled existing user data from cloud, mark onboarding as complete.
+  if (hasValidCloudData) {
+    useUiStore.getState().setOnboardingDone(true);
+  }
 }
 
 // ---- the sync cycle ---------------------------------------------------------
@@ -166,12 +219,15 @@ export function initSync() {
 
   // React to local data changes (debounced push).
   useTransactionStore.subscribe(() => scheduleSync());
+  useCashbookStore.subscribe(() => scheduleSync());
   useProfileStore.subscribe(() => scheduleSync());
   useSnapshotStore.subscribe(() => scheduleSync());
 
   // React to connectivity.
-  window.addEventListener('online', () => void sync());
-  window.addEventListener('offline', () => useSyncStore.getState().setStatus('offline'));
+  if (typeof window !== 'undefined') {
+    window.addEventListener('online', () => void sync());
+    window.addEventListener('offline', () => useSyncStore.getState().setStatus('offline'));
+  }
 
   // Safety-net poll.
   setInterval(() => void sync(), 60_000);

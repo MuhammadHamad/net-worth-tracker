@@ -7,13 +7,25 @@
 
 create table if not exists public.sync_items (
   user_id    uuid        not null references auth.users (id) on delete cascade,
-  kind       text        not null check (kind in ('transaction', 'snapshot', 'profile')),
+  kind       text        not null check (kind in ('transaction', 'snapshot', 'profile', 'cashbook')),
   item_id    text        not null,
   data       jsonb       not null,
   deleted    boolean     not null default false,
   updated_at timestamptz not null default now(),
   primary key (user_id, kind, item_id)
 );
+
+-- Migration for existing databases: update check constraint to include cashbook
+do $$
+begin
+  if exists (
+    select 1 from pg_constraint
+    where conname = 'sync_items_kind_check'
+  ) then
+    alter table public.sync_items drop constraint sync_items_kind_check;
+    alter table public.sync_items add constraint sync_items_kind_check check (kind in ('transaction', 'snapshot', 'profile', 'cashbook'));
+  end if;
+end $$;
 
 -- Pull queries filter by (user_id, updated_at) — index it.
 create index if not exists sync_items_user_updated_idx
